@@ -1,5 +1,7 @@
 from urllib.parse import urljoin, urlparse
 import requests
+
+from PageData import PageData
 from Source import Source
 from Stock import Stock
 from fake_useragent import UserAgent
@@ -48,9 +50,9 @@ class GoogleCrawler:
             if path and path.startswith('/'):
                 path = urljoin(url, path)
             parsed_url = urlparse(path)
-            if 'google' not in str(parsed_url.netloc) and path is not None and not '#':
-                time = link.findNext('div', {'class': 'OSrXXb rbYSKb LfVVr'})
-                yield path
+            if 'google' not in str(parsed_url.netloc) and path is not None and path != '#':
+                # time = link.findNext('div', {'class': 'OSrXXb rbYSKb LfVVr'})
+                yield PageData(self.source, self.stock, path)
 
     def run(self):
         search_str = f'site:{self.source.url} {self.stock.name}'
@@ -58,7 +60,7 @@ class GoogleCrawler:
         response = requests.get(search_url, headers=self.headers, cookies=self.cookies)
         html = response.text
         self.soup = BeautifulSoup(html, 'html.parser')
-        print(search_url)
-        #print(html)
+        pages = []
         for page in self.get_linked_pages(search_url):
-            print(page)
+            pages.append(page)
+        return pages
