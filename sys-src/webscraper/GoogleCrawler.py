@@ -1,8 +1,9 @@
+from urllib.parse import urljoin, urlparse
 import requests
-
 from Source import Source
 from Stock import Stock
 from fake_useragent import UserAgent
+from bs4 import BeautifulSoup
 
 
 def build_google_str(search_str, start=0, sort_by_date=True):
@@ -18,6 +19,7 @@ class GoogleCrawler:
     def __init__(self, stock: Stock, source: Source):
         self.stock = stock
         self.source = source
+        self.soup = None
         self.linked_pages = []
         self.linked_urls = set()
         self.url_docs = {}
@@ -40,11 +42,23 @@ class GoogleCrawler:
         self.banned = False
         print(self.headers["User-Agent"])
 
+    def get_linked_pages(self, url):
+        for link in self.soup.find_all('a'):
+            path = link.get('href')
+            if path and path.startswith('/'):
+                path = urljoin(url, path)
+            parsed_url = urlparse(path)
+            if 'google' not in str(parsed_url.netloc) and path is not None and not '#':
+                time = link.findNext('div', {'class': 'OSrXXb rbYSKb LfVVr'})
+                yield path
+
     def run(self):
-        search_str = self.source.name + ' ' + self.stock.name
+        search_str = f'site:{self.source.url} {self.stock.name}'
         search_url = build_google_str(search_str)
         response = requests.get(search_url, headers=self.headers, cookies=self.cookies)
         html = response.text
+        self.soup = BeautifulSoup(html, 'html.parser')
         print(search_url)
-        print(html)
-
+        #print(html)
+        for page in self.get_linked_pages(search_url):
+            print(page)
