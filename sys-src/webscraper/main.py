@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from GoogleCrawler import GoogleCrawler
-from PageScraper import PageScraper
+from PageCrawler import PageCrawler
 from Source import Source
 from Stock import Stock
+
 
 # test webcrawler
 stock = Stock('Apple', 'AAPL')
@@ -17,7 +18,12 @@ from_time = datetime.strptime(date_str, '%m-%d-%Y').date()
 googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30, source=source, search_by_ticker=False)
 pages = googleCrawler.run()
 
-for page in pages:
-    print(page.stock.name, page.source.name, page.pub_date, page.url)
+pageCrawler = PageCrawler(pages)
+pageCrawler.getContent()
+
+print(pages[0].content)
+
+#for page in pages:
+    #print(page.stock.name, page.source.name, page.pub_date, page.url)
 # pageScraper = PageScraper(pages)
 # pageScraper.run()
