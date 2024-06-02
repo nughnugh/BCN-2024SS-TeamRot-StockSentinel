@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from GoogleCrawler import GoogleCrawler
 from PageCrawler import PageCrawler
 from Source import Source
@@ -16,10 +15,11 @@ date_str = '09-19-2022'
 from_time = datetime.strptime(date_str, '%m-%d-%Y').date()
 
 googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30, source=source, search_by_ticker=False)
+#googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30)
 pages = googleCrawler.run()
 
 pageCrawler = PageCrawler(pages)
-pageCrawler.getContent()
+pages = pageCrawler.getContent()
 
 print(pages[0].content)
 

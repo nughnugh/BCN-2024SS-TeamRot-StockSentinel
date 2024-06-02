@@ -10,3 +10,4 @@ class PageData:
         self.title = title
         self.pub_date = pub_date
         self.content = ""
+        self.timeout = False
