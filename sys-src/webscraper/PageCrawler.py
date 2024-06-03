@@ -16,8 +16,7 @@ class PageCrawler:
     def getContent(self):
         for page in self.pages:
             try:
-                response = requests.get(page.url, timeout=(1,1))
-                #print("basst")
+                response = requests.get(page.url, timeout=(2,2))
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     page.content = soup.get_text()

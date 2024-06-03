@@ -1,6 +1,8 @@
 from datetime import datetime
 from GoogleCrawler import GoogleCrawler
 from PageCrawler import PageCrawler
+from PageData import PageData
+from SentAnalyzer import SentAnalyzer
 from Source import Source
 from Stock import Stock
 
@@ -21,7 +23,8 @@ pages = googleCrawler.run()
 pageCrawler = PageCrawler(pages)
 pages = pageCrawler.getContent()
 
-print(pages[0].content)
+sentimentAnal = SentAnalyzer(pages)
+sentimentAnal.analyze()
 
 #for page in pages:
     #print(page.stock.name, page.source.name, page.pub_date, page.url)
