@@ -1,10 +1,17 @@
+
+
 <script>
+    import Header from "../components/Header.svelte";
     let price = "$Placeholder"
 </script>
 
 <style>
     .grid-container {
         display: grid;
+        display: grid;
+        gap: 1px;
+        padding: 1px;
+        border-radius: 2px;
     }
     .header{
         display: grid;
@@ -40,9 +47,9 @@
 </style>
 
 <div class="grid-container">
-
     <div class="header">
-        <div class="title"> <h1>Stock Sentinel </h1></div>  <div class="pages"> Overview</div>
+        <div class="title"> <h2>Stock Sentinel </h2></div>
+        <div class="pages"> Overview</div>
     </div>
     <div class = "stock_name">
         <h2>Stock Name</h2>
@@ -52,7 +59,5 @@
         <div> <h2>{price}</h2></div>
         <div> <p>Price at Market Close</p></div>
     </div>
-
     <div class = "side_blocker"></div>
-
 </div>
