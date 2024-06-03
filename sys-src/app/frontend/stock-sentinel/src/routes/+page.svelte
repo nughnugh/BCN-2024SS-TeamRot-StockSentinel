@@ -12,12 +12,14 @@
         grid-row: 1;
         text-align: left;
         border-style: solid;
+        align-items: baseline;
     }
     .title{
         grid-column: 1;
         text-align: left;
     }
     .pages{
+        grid-align: center;
         grid-column: 2;
     }
     .stock_name{
