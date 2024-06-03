@@ -10,5 +10,5 @@ class PageData:
         self.title = title
         self.pub_date = pub_date
         self.content = ""
-        self.sentiment = 0.0
+        self.sentiment = [0.0,0.0,0.0,0.0]      #negativ, neutral, positiv, compound
         self.timeout = False
