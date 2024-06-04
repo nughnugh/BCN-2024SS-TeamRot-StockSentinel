@@ -7,9 +7,9 @@ from Stock import Stock
 from fake_useragent import UserAgent
 import datetime
 import requests
-from dateutil.relativedelta import relativedelta
 import xml.etree.ElementTree as ET
 import base64
+import dateparser
 
 COOKIES = {
     "CONSENT": "PENDING+987",
@@ -23,13 +23,15 @@ class SearchTimeAggregate:
     MONTH = 'm'
 
 
+ddp = dateparser.date.DateDataParser()
+
+
 class GoogleCrawler:
     def __init__(
             self, stock: Stock,
             existing_sources: dict,
-            search_time_agg: str,
-            search_time_span: int,
-            search_time_start: datetime.date = None,
+            search_time_start: datetime.date,
+            search_time_end: datetime.date,
             source: Source = None,
             search_by_ticker: bool = True,
             language: str = 'en',
@@ -38,9 +40,8 @@ class GoogleCrawler:
         self.stock = stock
         self.source = source
         self.existing_sources = existing_sources
-        self.search_time_agg = search_time_agg
-        self.search_time_span = search_time_span
         self.search_time_start = search_time_start
+        self.search_time_end = search_time_end
         self.search_by_ticker = search_by_ticker
 
         headers = {
@@ -63,24 +64,16 @@ class GoogleCrawler:
 
         if self.source:
             search_str += f'+site:{self.source.url}'
-        if self.search_time_start:
-            before = self.search_time_start
-            after = (self.search_time_start -
-                     relativedelta(
-                         months=((self.search_time_agg == SearchTimeAggregate.MONTH) * self.search_time_span),
-                         days=((self.search_time_agg == SearchTimeAggregate.DAY) * self.search_time_span),
-                         hours=((self.search_time_agg == SearchTimeAggregate.HOUR) * self.search_time_span),
-                     ))
-            search_str += f'+after:{after}+before:{before}'
-        else:
-            search_str += f'+when:{self.search_time_span}{self.search_time_agg}'
+
+        search_str += f'+after:{self.search_time_start}+before:{self.search_time_end}'
+
         lan = f'hl={self.language}-{self.country}&gl={self.country}&ceid={self.country}:{self.language}'
         search_url = f'https://news.google.com/rss/{search_str}&{lan}'
         return search_url
 
     def parse_item(self, item) -> PageData:
         title = item.find('title').text
-        pub_date = item.find('pubDate').text
+        pub_date = ddp.get_date_data(item.find('pubDate').text).date_obj
         source_url = urlparse(item.find('source').attrib['url']).netloc
         # links are encoded by google, use base64 decoder to avoid redirection
         encoded = item.find('guid').text + '=='
@@ -108,5 +101,9 @@ class GoogleCrawler:
         if not channel:
             return pages
         for item in channel.findall('item'):
-            pages.append(self.parse_item(item))
+            page = self.parse_item(item)
+            # linked pages may contain articles that were recently updated, but since the provided time is wrong
+            # the data is unusable
+            if self.search_time_start <= page.pub_date.date() <= self.search_time_end:
+                pages.append(page)
         return pages

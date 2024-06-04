@@ -54,14 +54,16 @@ create table stock_news
     news_source_id integer
         constraint stock_news_news_source_news_source_id_fk
             references news_source,
-    url            varchar(128),
+    url            varchar(256)
+        constraint stock_news_pk_2
+            unique,
     sentiment      integer,
     ticker_related boolean,
     pub_date       timestamp,
-    source_url     varchar(128),
     timeout        boolean default false not null,
     title          varchar(256)
 );
 
 alter table stock_news
     owner to st_user;
+

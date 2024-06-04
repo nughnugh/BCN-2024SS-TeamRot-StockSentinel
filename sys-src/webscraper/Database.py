@@ -62,14 +62,36 @@ def insert_news_source(news_source: Source):
     return news_source
 
 
+def remove_existing_news(stock_news: list[PageData]) -> list[PageData]:
+    cursor = conn.cursor()
+    collection = []
+    stock_news_dict = {}
+    for item in stock_news:
+        collection.append(item.url)
+        stock_news_dict[item.url] = item
+    try:
+        query = 'SELECT url FROM stock_news WHERE url = ANY (%s)'
+        cursor.execute(query, (collection,))
+        exclude_urls = cursor.fetchall()
+        for url in exclude_urls:
+            stock_news_dict.pop(url[0])
+
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+
+    return list(stock_news_dict.values())
+
+
 def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
     cursor = conn.cursor()
     collection = []
     for item in stock_news:
         collection.append((item.stock.db_id, item.source.db_id, item.url, item.ticker_related, item.pub_date,
-                           item.source_url, item.timeout, item.title))
+                           item.timeout, item.title))
     try:
-        query = 'INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, source_url, timeout, title) VALUES %s'
+        query = 'INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, timeout, title) VALUES %s'
         execute_values(cursor, query, collection)
         logger.info(f'inserted {len(stock_news)} stock news')
         conn.commit()
@@ -128,10 +150,22 @@ def get_all_news_sources() -> list[Source]:
     return source_list
 
 
-if False:
-    insert_stock(Stock('Apple', 'AAPL'))
-    insert_news_source(Source(DUMMY_SOURCE_STRING, ' '))
-    insert_news_source(Source('Forbes', 'forbes.com'))
+def get_news_time_span(stock: Stock, source: Source) -> (bool, datetime, datetime):
+    cursor = conn.cursor()
+    datetime_min: datetime = None
+    datetime_max: datetime = None
+    try:
+        query = 'SELECT min(pub_date), max(pub_date) FROM stock_news WHERE stock_id = %s AND news_source_id = %s'
+        cursor.execute(query, (stock.db_id, source.db_id))
+        data = cursor.fetchone()
+        datetime_min = data[0]
+        datetime_max = data[1]
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+    return datetime_min, datetime_max
+
 
 get_all_news_sources()
 
