@@ -1,3 +1,6 @@
+from urllib.parse import urlparse
+
+import Database
 from PageData import PageData
 from Source import Source
 from Stock import Stock
@@ -56,7 +59,7 @@ class GoogleCrawler:
         if self.search_by_ticker:
             search_str += f'intitle:{self.stock.ticker_symbol}'
         else:
-            search_str += self.stock.name
+            search_str += f'intitle:{self.stock.name}'
 
         if self.source:
             search_str += f'+site:{self.source.url}'
@@ -77,8 +80,8 @@ class GoogleCrawler:
 
     def parse_item(self, item) -> PageData:
         title = item.find('title').text
-        pubDate = item.find('pubDate').text
-        source_url = item.find('source').attrib['url']
+        pub_date = item.find('pubDate').text
+        source_url = urlparse(item.find('source').attrib['url']).netloc
         # links are encoded by google, use base64 decoder to avoid redirection
         encoded = item.find('guid').text + '=='
         url = 'https://' + str(base64.b64decode(encoded)[4: -3]).split('https://')[1]
@@ -87,11 +90,14 @@ class GoogleCrawler:
         url = url.split('\\')[0]
 
         if self.source:
-            return PageData(self.source, self.stock, url, title, pubDate)
-        if source_url not in self.existing_sources:
-            # TODO get source name
-            self.existing_sources[source_url] = Source('UNKNOWN', source_url, False)
-        return PageData(self.existing_sources.get(source_url), self.stock, url, title, pubDate)
+            source = self.source
+        elif source_url not in self.existing_sources:
+            source = Database.DUMMY_SOURCE
+        else:
+            source = self.existing_sources[source_url]
+
+        return PageData(source=source, stock=self.stock, url=url, title=title,
+                        pub_date=pub_date, source_url=source_url, ticker_related=self.search_by_ticker)
 
     def run(self) -> list[PageData]:
         res = self.client.get(self.build_search_url())

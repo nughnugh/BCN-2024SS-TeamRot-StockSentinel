@@ -1,5 +1,6 @@
 class Source:
-    def __init__(self, name, url, trusted=True):
+    def __init__(self, name: str, url: str, trusted: bool = True, db_id=None):
+        self.db_id = db_id
         self.name = name
         self.url = url
         self.trusted = trusted
