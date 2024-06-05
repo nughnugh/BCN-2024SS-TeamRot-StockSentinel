@@ -5,6 +5,8 @@ from Database import get_all_stocks, get_all_news_sources, insert_stock_news_bat
     get_news_time_span
 from GoogleCrawler import GoogleCrawler
 
+import logging
+logger = logging.getLogger(__name__)
 
 class QueryMode:
     RECENT = 1
@@ -45,14 +47,14 @@ class NewsCrawler:
                         work_max_date = datetime.today().date()
 
                 if not work_min_date or not work_max_date:
-                    print(f"work dates not filled")
+                    logger.error(f"work dates not filled")
                     continue
 
-                print(f"Total range {work_min_date} to {work_max_date}")
+                logger.info(f"Total range {work_min_date} to {work_max_date}")
 
                 while work_min_date < work_max_date:
                     start_date = max(work_max_date - timedelta(days=self.agg_days), work_min_date)
-                    print(f"Work range {start_date} to {work_max_date}")
+                    logger.info(f"Work range {start_date} to {work_max_date}")
 
                     google_crawler = GoogleCrawler(stock=stock, existing_sources=existing_sources,
                                                    search_time_start=start_date, search_time_end=work_max_date,
@@ -61,7 +63,7 @@ class NewsCrawler:
                     stock_news = google_crawler.run()
                     prev_cnt = len(stock_news)
                     stock_news = remove_existing_news(stock_news)
-                    print(f"crawled {len(stock_news)} new articles ({prev_cnt} total)")
+                    logger.info(f"crawled {len(stock_news)} new articles ({prev_cnt} total)")
                     insert_stock_news_batch(stock_news)
                     work_max_date = start_date - timedelta(days=1)
                     sleep(2.5)

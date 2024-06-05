@@ -11,6 +11,9 @@ import xml.etree.ElementTree as ET
 import base64
 import dateparser
 
+import logging
+logger = logging.getLogger(__name__)
+
 COOKIES = {
     "CONSENT": "PENDING+987",
     "SOCS": "CAESHAgBEhJnd3NfMjAyMzA4MTAtMF9SQzIaAmRlIAEaBgiAo_CmBg"
@@ -95,7 +98,7 @@ class GoogleCrawler:
     def run(self) -> list[PageData]:
         res = self.client.get(self.build_search_url())
         root = ET.fromstring(res.text)
-        print(self.build_search_url())
+        logger.info(self.build_search_url())
         channel = root.find('channel')
         pages = []
         if not channel:

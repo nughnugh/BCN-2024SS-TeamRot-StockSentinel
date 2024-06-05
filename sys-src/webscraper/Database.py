@@ -11,16 +11,16 @@ from PageData import PageData
 from Source import Source
 from Stock import Stock
 
-logger = logging.getLogger()
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
-load_dotenv()
-conn = psycopg2.connect(database=os.getenv("DB_NAME"),
-                        host=os.getenv("DB_HOST"),
-                        user=os.getenv("DB_USER"),
-                        password=os.getenv("DB_PASS"),
-                        port=os.getenv("DB_PORT")
+load_dotenv(dotenv_path='../.env')
+load_dotenv(dotenv_path='../postgres.env')
+
+conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
+                        host=os.getenv("PG_HOST"),
+                        user=os.getenv("POSTGRES_USER"),
+                        password=os.getenv("POSTGRES_PASSWORD"),
+                        port=os.getenv("PG_PORT")
                         )
 
 DUMMY_SOURCE: Source
@@ -51,7 +51,6 @@ def insert_news_source(news_source: Source):
                        (news_source.name, news_source.url))
         news_source_id = cursor.fetchone()[0]
         news_source.db_id = news_source_id
-        print(news_source_id)
         conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
