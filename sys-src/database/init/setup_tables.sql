@@ -45,23 +45,27 @@ alter table news_source
 
 create table stock_news
 (
-    stock_news_id  bigserial
+    stock_news_id    bigserial
         constraint stock_news_pk
             primary key,
-    stock_id       serial
+    stock_id         serial
         constraint stock_news_stock_stock_id_fk
             references stock,
-    news_source_id integer
+    news_source_id   integer
         constraint stock_news_news_source_news_source_id_fk
             references news_source,
-    url            varchar(256)
+    url              varchar(256)
         constraint stock_news_pk_2
             unique,
-    sentiment      integer,
-    ticker_related boolean,
-    pub_date       timestamp,
-    timeout        boolean default false not null,
-    title          varchar(256)
+    sentiment_exists boolean default false not null,
+    sentiment_neg    numeric,
+    sentiment_neu    numeric,
+    sentiment_pos    numeric,
+    sentiment_comp   numeric,
+    ticker_related   boolean,
+    pub_date         timestamp,
+    timeout          boolean default false not null,
+    title            varchar(256)
 );
 
 alter table stock_news

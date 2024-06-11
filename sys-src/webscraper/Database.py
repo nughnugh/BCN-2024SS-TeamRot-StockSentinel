@@ -19,7 +19,7 @@ load_dotenv(dotenv_path='../postgres.env')
 conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         host=os.getenv("PG_HOST"),
                         user=os.getenv("POSTGRES_USER"),
-                        password=os.getenv("POSTGRES_PASSWORD"),
+                        password='admin',  #password=os.getenv("POSTGRES_PASSWORD"),
                         port=os.getenv("PG_PORT")
                         )
 
@@ -90,7 +90,9 @@ def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
         collection.append((item.stock.db_id, item.source.db_id, item.url, item.ticker_related, item.pub_date,
                            item.timeout, item.title))
     try:
-        query = 'INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, timeout, title) VALUES %s'
+        query = """
+            INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, timeout, title) VALUES %s
+        """
         execute_values(cursor, query, collection)
         logger.info(f'inserted {len(stock_news)} stock news')
         conn.commit()
@@ -166,5 +168,67 @@ def get_news_time_span(stock: Stock, source: Source) -> (bool, datetime, datetim
     return datetime_min, datetime_max
 
 
-get_all_news_sources()
+def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
+    cursor = conn.cursor()
+    news_buckets: dict[int, list[PageData]] = {}
+    try:
+        query = f"""
+        SELECT
+          stock_news_id, url, title, timeout, news_source_id
+        FROM (
+          SELECT
+            ROW_NUMBER() OVER (PARTITION BY news_source_id ORDER BY news_source_id, stock_news_id) AS rownum,
+            t.*
+          FROM
+            stock_news t
+          WHERE not sentiment_exists
+            AND not timeout
+        ) x
+        WHERE
+          x.rownum <= {limit_per_source}
+        """
+        cursor.execute(query)
+        records = cursor.fetchall()
+        for record in records:
+            news_id = record[4]
+            if news_id not in news_buckets:
+                news_buckets[news_id] = []
+            news_buckets[news_id].append(PageData(db_id=record[0], url=record[1], title=record[2], timeout=record[3],
+                                                  source=None, stock=None, pub_date=None, ticker_related=None,
+                                                  source_url=None))
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+    return news_buckets
 
+
+# TODO generalize update for all values..?
+def update_news(news_list: list[PageData]):
+    cursor = conn.cursor()
+    query = """
+        update stock_news s
+        set
+            sentiment_exists = t.sentiment_exists,
+            sentiment_neg = t.sentiment_neg,
+            sentiment_neu = t.sentiment_neu,
+            sentiment_pos = t.sentiment_pos,
+            sentiment_comp = t.sentiment_comp,
+            timeout = t.timeout
+        from (values %s) as t(stock_news_id, sentiment_exists, sentiment_neg, sentiment_neu, sentiment_pos,
+                              sentiment_comp, timeout)
+        where s.stock_news_id = t.stock_news_id;
+    """
+    rows_to_update = []
+    for news in news_list:
+        rows_to_update.append(
+            (news.db_id, news.sentiment_exists, news.sentiment[0], news.sentiment[1], news.sentiment[2],
+             news.sentiment[3], news.timeout)
+        )
+    try:
+        execute_values(cursor, query, rows_to_update)
+        conn.commit()
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()

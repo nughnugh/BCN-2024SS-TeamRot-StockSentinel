@@ -13,7 +13,7 @@ class QueryMode:
     HISTORY = 2
 
 
-class NewsCrawler:
+class NewsProcess:
     def __init__(self, query_mode, history_min_date, agg_days):
         self.query_mode = query_mode
         self.history_min_date = history_min_date
@@ -66,7 +66,7 @@ class NewsCrawler:
                     logger.info(f"crawled {len(stock_news)} new articles ({prev_cnt} total)")
                     insert_stock_news_batch(stock_news)
                     work_max_date = start_date - timedelta(days=1)
-                    sleep(2.5)
+                    sleep(0.5)
 
             # googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 7, search_by_ticker=True)
             # insert_stock_news_batch(stock_news)
