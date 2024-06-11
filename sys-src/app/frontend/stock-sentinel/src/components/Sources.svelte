@@ -1,32 +1,78 @@
-<script>
-    let sources = ["source1", "source2", "source3", "source4", "source5", "source6", "source7", "source8"];
-    let articles = [1, 2, 3, 4, 5, 6, 7, 8];
-    let sentiments = ["positive", "positive", "neutral", "negative" ,"positive" , "neutral", "negative", "positive"];
+<script lang="ts">
+    import show from '$lib/assets/show.png';
+    import hide from '$lib/assets/hide.png';
+
+    let stocks = [
+        {name: 'source1', articles: 1, sentiment: 'positive', visible: true},
+        {name: 'source2', articles: 2, sentiment: 'positive', visible: true},
+        {name: 'source3', articles: 3, sentiment: 'neutral', visible: true},
+        {name: 'source4', articles: 4, sentiment: 'negative', visible: true},
+        {name: 'source5', articles: 5, sentiment: 'positive', visible: true},
+        {name: 'source6', articles: 6, sentiment: 'neutral', visible: true},
+        {name: 'source7', articles: 7, sentiment: 'negative', visible: true},
+        {name: 'source8', articles: 8, sentiment: 'positive', visible: true},
+    ]
+
+    function toggleVisibility(index: number){
+        stocks[index].visible = !stocks[index].visible;
+    }
 </script>
 
 <style>
     .stock_info_div{
-        width: 100%;
-        padding-left: 50px;
-        font-family: Arial, Helvetica, sans-serif;
+        display:flex;
+        flex-direction: column;
     }
+
     .sources_table{
-        grid-column: 2;
-        grid-row: 1;
         border: gainsboro solid 2px;
         border-radius: 8px;
         padding-left: 20px;
-        font-family: Arial, Helvetica, sans-serif;
+        padding-right: 20px;
+        box-shadow: gainsboro 0px 0px 10px;
     }
+
     th{
         font-weight: bold;
         color: darkgrey;
+        padding-bottom: 10px;
+        text-align: right;
     }
-    tr{
-        border-bottom: 1px solid darkgrey;
+
+    .source_headline{
+        text-align: left;
     }
+
+    .article_headline{
+        text-align: center;
+    }
+
+    .table_title{
+        font-weight: bold;
+        color: black;
+        text-align: left;
+        font-size: large;
+        padding-top: 10px;
+    }
+
     td{
-        padding: 10px;
+        border-top: 1px solid gainsboro;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        text-align: right;
+    }
+
+    .sources{
+        text-align:left;
+    }
+
+    .articles{
+        text-align: center;
+    }
+
+    img{
+        max-height:20px;
+        width:auto;
     }
 </style>
 
@@ -35,18 +81,26 @@
         <table class="sources_table">
             <thead>
                 <tr>
-                    <th>Source</th>
-                    <th>Articles</th>
+                    <th class = "table_title">Sentiment Sources</th>
+                </tr>
+                <tr>
+                    <th class = "source_headline">Source</th>
+                    <th class = "article_headline">Articles</th>
                     <th>Sentiment</th>
                 </tr>
             </thead>
             <tbody>
-            {#each sources as source, i}
-                <tr>
-                    <td>{source}</td>
-                    <td>{articles[i]}</td>
-                    <td>{sentiments[i]}</td>
-                </tr>
+                {#each stocks as stock, i}
+                    <tr style = {stock.visible ? 'color: black' : 'color: lightgrey'}>
+                        <td class = "sources">{stock.name}</td>
+                        <td class = "articles">{stock.articles}</td>
+                        <td>{stock.sentiment}</td>
+                        <td>
+                            <button class="eye_button" on:click={() => toggleVisibility(i)}>
+                                <img src = {stock.visible ? show : hide} alt = "visibility eye button"/>
+                            </button>
+                        </td>
+                    </tr>
                 {/each}
             </tbody>
         </table>

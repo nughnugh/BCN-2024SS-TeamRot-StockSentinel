@@ -1,27 +1,16 @@
 <script>
-    import Header from "../components/Header.svelte";
-    import StockInfo from "../components/StockInfo.svelte";
-    import Sentiment from "../components/Sentiment.svelte";
-    import Sources from "../components/Sources.svelte";
+    import Stocklist from "../components/Stocklist.svelte";
 </script>
 
 <style>
-    .info{
-        display:grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap:20px;
+    main{
+        padding-right: 50px;
+        padding-left: 50px;
+        font-family: Arial, Helvetica, sans-serif;
     }
 </style>
 
 
 <main>
-    <div class = "dashboard">
-        <Header></Header>
-        <div class = "info">
-            <StockInfo></StockInfo>
-            <Sentiment></Sentiment>
-        </div>
-        <Sources></Sources>
-    </div>
+    <Stocklist></Stocklist>
 </main>
-

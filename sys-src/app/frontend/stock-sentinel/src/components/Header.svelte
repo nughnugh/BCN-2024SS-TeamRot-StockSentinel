@@ -1,32 +1,37 @@
 <style>
-    .header{
+    header{
+        position: sticky;
+        top: 0;
+        left: 0;
         display: flex;
-        text-align: left;
-        border-bottom: gainsboro solid 2px;
-        align-items: baseline;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center;
+        width: 100%;
+        border: gainsboro solid 2px;
+        border-radius: 8px;
         font-family: Arial, Helvetica, sans-serif;
+        background-color: gainsboro;
+        margin-top: 0;
     }
 
     .title{
-        text-align: left;
         padding-right: 50px;
         padding-left: 50px;
-        font-family: Arial, Helvetica, sans-serif;
     }
 
-    .pages{
-        text-align: left;
-        font-family: Arial, Helvetica, sans-serif;
+    nav a{
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
     }
 </style>
 
-<main>
-    <header class = "header">
-        <div class = "title">
-            <h2>Stock Sentinel</h2>
-        </div>
-        <nav class = "pages">
-            <a href = "/overview">Overview</a>
-        </nav>
-    </header>
-</main>
+<header>
+    <div class = "title">
+        <h2>Stock Sentinel</h2>
+    </div>
+    <nav>
+        <a href = "/">Overview</a>
+    </nav>
+</header>
