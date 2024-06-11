@@ -3,6 +3,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from statistics import mean
 from PageData import PageData
 
+
 class SentAnalyzer:
     def __init__(self, pages: list[PageData]):
         self.pages = pages

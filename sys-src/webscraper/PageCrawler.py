@@ -20,9 +20,10 @@ class PageCrawler:
                 if response.status_code == 200:
                     soup = BeautifulSoup(response.text, 'html.parser')
                     page.content = soup.get_text()
-                    time.sleep(0.3 + random.randrange(1, 10) / 10.0)
+                    time.sleep(0.1 + random.randrange(1, 5) / 10.0)
                 else:
-                    return f"Error fetching the page: {response.status_code}"
+                    print(f"Error fetching the page: {response.status_code}")
+                    page.timeout = True
             except requests.exceptions.Timeout:
                 print(f"Request to {page.url} timed out")
                 page.timeout = True

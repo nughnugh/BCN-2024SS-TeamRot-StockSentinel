@@ -5,7 +5,10 @@ from PageData import PageData
 from SentAnalyzer import SentAnalyzer
 from Source import Source
 from Stock import Stock
+import nltk
 
+nltk.download('vader_lexicon')
+nltk.download('punkt')
 
 # test webcrawler
 stock = Stock('Apple', 'AAPL')
@@ -20,7 +23,7 @@ googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30, source=source, s
 #googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30)
 pages = googleCrawler.run()
 
-pageCrawler = PageCrawler(pages)
+pageCrawler = PageCrawler(pages[:10])
 pages = pageCrawler.getContent()
 
 sentimentAnal = SentAnalyzer(pages)
