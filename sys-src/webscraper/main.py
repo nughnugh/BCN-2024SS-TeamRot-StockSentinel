@@ -1,35 +1,31 @@
+import logging
 from datetime import datetime
-from GoogleCrawler import GoogleCrawler
-from PageCrawler import PageCrawler
-from PageData import PageData
-from SentAnalyzer import SentAnalyzer
-from Source import Source
-from Stock import Stock
 import nltk
+from NewsCrawler import NewsCrawler, QueryMode
+import os
 
 nltk.download('vader_lexicon')
 nltk.download('punkt')
 
-# test webcrawler
-stock = Stock('Apple', 'AAPL')
-source = Source('Forbes', 'www.forbes.com')
-# TODO
-existing_sources = {}
+if not os.path.exists("logs"):
+    os.makedirs("logs")
 
-date_str = '09-19-2022'
-from_time = datetime.strptime(date_str, '%m-%d-%Y').date()
+logger = logging.getLogger()
+logFormatter = logging.Formatter("%(asctime)s [%(name)-12.12s] [%(levelname)-5.5s]  %(message)s")
 
-googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30, source=source, search_by_ticker=False)
-#googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 30)
-pages = googleCrawler.run()
+fileHandler = logging.FileHandler(f"logs/crawler_{datetime.today().date()}.log")
+fileHandler.setFormatter(logFormatter)
+logger.addHandler(fileHandler)
 
-pageCrawler = PageCrawler(pages[:10])
-pages = pageCrawler.getContent()
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
 
-sentimentAnal = SentAnalyzer(pages)
-sentimentAnal.analyze()
+logger.setLevel(logging.INFO)
 
-#for page in pages:
-    #print(page.stock.name, page.source.name, page.pub_date, page.url)
-# pageScraper = PageScraper(pages)
-# pageScraper.run()
+logger.info(f"=======================================")
+logger.info(f"Start process: {datetime.now()}")
+logger.info(f"=======================================")
+
+news_crawler = NewsCrawler(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(), 7)
+news_crawler.run()
