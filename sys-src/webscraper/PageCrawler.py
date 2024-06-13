@@ -6,13 +6,10 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 from PageData import PageData
 from SentAnalyzer import analyze
-<<<<<<< Updated upstream
-=======
 
 logger = logging.getLogger(__name__)
->>>>>>> Stashed changes
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 class PageCrawler:
     def __init__(self, pages: list[PageData]):
@@ -21,7 +18,6 @@ class PageCrawler:
         self.client = requests.Session()
         self.client.headers.update(headers)
 
-<<<<<<< Updated upstream
     async def get_content(self) -> list[PageData]:
         sentiment_tasks = []
         error_pages = []
@@ -50,7 +46,6 @@ class PageCrawler:
         for task in sentiment_tasks:
             new_pages.append(await task)
 
-=======
     async def process_page(self, page: PageData) -> PageData:
         try:
             response = self.client.get(page.url, timeout=(2 + page.timeout_cnt, 2 + page.timeout_cnt))
@@ -77,5 +72,4 @@ class PageCrawler:
         new_pages = []
         for task in tasks:
             new_pages.append(await task)
->>>>>>> Stashed changes
         return new_pages

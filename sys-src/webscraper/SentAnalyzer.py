@@ -5,21 +5,15 @@ from PageData import PageData
 
 sia = SentimentIntensityAnalyzer()
 
+#async def analyze(page: PageData) -> PageData:
 
-<<<<<<< Updated upstream
-async def analyze(page: PageData) -> PageData:
-=======
 def analyze(page: PageData) -> PageData:
->>>>>>> Stashed changes
     if not page.timeout:
         text = page.content
         scores = [sia.polarity_scores(sentence) for sentence in nltk.sent_tokenize(text)]
         if not scores:
             print(f'Leere Liste, Inhalt:{page.content} url: {page.url}')
-<<<<<<< Updated upstream
-=======
             page.timeout_cnt += 1
->>>>>>> Stashed changes
             return page
         neg_scores = [score['neg'] for score in scores]
         neu_scores = [score['neu'] for score in scores]
