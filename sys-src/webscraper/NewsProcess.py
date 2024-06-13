@@ -31,6 +31,9 @@ class NewsProcess:
                 work_min_date = None
                 work_max_date = None
                 min_date, max_date = get_news_time_span(stock, source)
+                if not min_date or not max_date:
+                    logger.error(f"dates not filled")
+                    continue
                 if self.query_mode == QueryMode.HISTORY:
                     if not min_date:
                         work_min_date = self.history_min_date
@@ -47,7 +50,7 @@ class NewsProcess:
                         work_max_date = datetime.today().date()
 
                 if not work_min_date or not work_max_date:
-                    logger.error(f"work dates not filled")
+                    logger.info(f"News all up to date")
                     continue
 
                 logger.info(f"Total range {work_min_date} to {work_max_date}")

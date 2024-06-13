@@ -4,8 +4,6 @@ import sys
 from datetime import datetime
 import nltk
 
-
-
 from MyFormatter import MyFormatter
 from NewsProcess import NewsProcess, QueryMode
 import os

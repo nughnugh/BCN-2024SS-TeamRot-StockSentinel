@@ -21,6 +21,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Copy the source code into the container.
 COPY . .
 
+RUN [ "python3", "-c", "import nltk; nltk.download('punkt', download_dir='/usr/local/nltk_data'); nltk.download('vader_lexicon', download_dir='/usr/local/nltk_data')" ]
+
 # Expose the port that the application listens on.
 EXPOSE 8000
 

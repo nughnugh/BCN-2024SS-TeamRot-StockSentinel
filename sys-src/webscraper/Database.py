@@ -88,10 +88,10 @@ def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
     collection = []
     for item in stock_news:
         collection.append((item.stock.db_id, item.source.db_id, item.url, item.ticker_related, item.pub_date,
-                           item.timeout, item.title))
+                           item.title))
     try:
         query = """
-            INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, timeout, title) VALUES %s
+            INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, title) VALUES %s
         """
         execute_values(cursor, query, collection)
         logger.info(f'inserted {len(stock_news)} stock news')
@@ -174,15 +174,17 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
     try:
         query = f"""
         SELECT
-          stock_news_id, url, title, timeout, news_source_id
+          stock_news_id, url, title, timeout_cnt, news_source_id
         FROM (
           SELECT
-            ROW_NUMBER() OVER (PARTITION BY news_source_id ORDER BY news_source_id, stock_news_id) AS rownum,
+            ROW_NUMBER() OVER (
+                PARTITION BY news_source_id 
+                ORDER BY news_source_id, timeout_cnt asc, stock_news_id desc
+            ) AS rownum,
             t.*
           FROM
             stock_news t
           WHERE not sentiment_exists
-            AND not timeout
         ) x
         WHERE
           x.rownum <= {limit_per_source}
@@ -193,9 +195,10 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
             news_id = record[4]
             if news_id not in news_buckets:
                 news_buckets[news_id] = []
-            news_buckets[news_id].append(PageData(db_id=record[0], url=record[1], title=record[2], timeout=record[3],
-                                                  source=None, stock=None, pub_date=None, ticker_related=None,
-                                                  source_url=None))
+            news_buckets[news_id].append(
+                PageData(db_id=record[0], url=record[1], title=record[2], timeout_cnt=record[3],
+                         source=None, stock=None, pub_date=None, ticker_related=None,
+                         source_url=None))
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
@@ -210,25 +213,34 @@ def update_news(news_list: list[PageData]):
         update stock_news s
         set
             sentiment_exists = t.sentiment_exists,
-            sentiment_neg = t.sentiment_neg,
-            sentiment_neu = t.sentiment_neu,
-            sentiment_pos = t.sentiment_pos,
-            sentiment_comp = t.sentiment_comp,
-            timeout = t.timeout
-        from (values %s) as t(stock_news_id, sentiment_exists, sentiment_neg, sentiment_neu, sentiment_pos,
-                              sentiment_comp, timeout)
+            sentiment = t.sentiment,
+            timeout_cnt = t.timeout_cnt
+        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt)
         where s.stock_news_id = t.stock_news_id;
     """
     rows_to_update = []
     for news in news_list:
         rows_to_update.append(
-            (news.db_id, news.sentiment_exists, news.sentiment[0], news.sentiment[1], news.sentiment[2],
-             news.sentiment[3], news.timeout)
+            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt)
         )
     try:
         execute_values(cursor, query, rows_to_update)
         conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
+    finally:
+        cursor.close()
+
+
+def cleanup_timeout(max_retries: int):
+    cursor = conn.cursor()
+    try:
+        query = 'DELETE FROM stock_news WHERE timeout_cnt >= %s'
+        cursor.execute(query, (max_retries,))
+        conn.commit()
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
     finally:
         cursor.close()
