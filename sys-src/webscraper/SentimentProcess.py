@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 
 class SentimentProcess:
-
     async def run(self):
         while True:
             news = get_unprocessed_news(10)

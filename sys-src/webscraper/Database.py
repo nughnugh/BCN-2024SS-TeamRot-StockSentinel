@@ -19,7 +19,8 @@ load_dotenv(dotenv_path='../postgres.env')
 conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         host=os.getenv("PG_HOST"),
                         user=os.getenv("POSTGRES_USER"),
-                        password='admin',  #password=os.getenv("POSTGRES_PASSWORD"),
+                        #password='admin',
+                        password=os.getenv("POSTGRES_PASSWORD"),
                         port=os.getenv("PG_PORT")
                         )
 
