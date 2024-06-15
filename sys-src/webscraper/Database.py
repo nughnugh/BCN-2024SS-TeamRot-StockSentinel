@@ -19,7 +19,6 @@ load_dotenv(dotenv_path='../postgres.env')
 conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         host=os.getenv("PG_HOST"),
                         user=os.getenv("POSTGRES_USER"),
-                        #password='admin',
                         password=os.getenv("POSTGRES_PASSWORD"),
                         port=os.getenv("PG_PORT")
                         )
@@ -31,11 +30,16 @@ DUMMY_SOURCE_STRING = 'ANY_SOURCE'
 def insert_stock(stock: Stock) -> Stock:
     cursor = conn.cursor()
     try:
-        cursor.execute('INSERT INTO stock (name, ticker_symbol) VALUES (%s, %s) RETURNING stock_id',
-                       (stock.name, stock.ticker_symbol))
-        stock_id = cursor.fetchone()[0]
-        stock.db_id = stock_id
-        conn.commit()
+        query = 'SELECT EXISTS (SELECT 1 FROM stock WHERE name = %s OR ticker_symbol = %s)'
+        cursor.execute(query, (stock.name, stock.ticker_symbol))
+        if cursor.fetchone()[0]:
+            logger.info(f'Stock already exists - {stock.name} {stock.ticker_symbol}')
+        else:
+            query = 'INSERT INTO stock (name, ticker_symbol) VALUES (%s, %s) RETURNING stock_id'
+            cursor.execute(query, (stock.name, stock.ticker_symbol))
+            stock_id = cursor.fetchone()[0]
+            stock.db_id = stock_id
+            conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
         conn.rollback()
@@ -48,11 +52,16 @@ def insert_stock(stock: Stock) -> Stock:
 def insert_news_source(news_source: Source):
     cursor = conn.cursor()
     try:
-        cursor.execute('INSERT INTO news_source (name, url) VALUES (%s, %s) RETURNING news_source_id',
-                       (news_source.name, news_source.url))
-        news_source_id = cursor.fetchone()[0]
-        news_source.db_id = news_source_id
-        conn.commit()
+        query = 'SELECT EXISTS (SELECT 1 FROM news_source WHERE name = %s OR url = %s)'
+        cursor.execute(query, (news_source.name, news_source.url))
+        if cursor.fetchone()[0]:
+            logger.info(f'News source already exists - {news_source.name} {news_source.url}')
+        else:
+            query = 'INSERT INTO news_source (name, url) VALUES (%s, %s) RETURNING news_source_id'
+            cursor.execute(query, (news_source.name, news_source.url))
+            news_source_id = cursor.fetchone()[0]
+            news_source.db_id = news_source_id
+            conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
         conn.rollback()
@@ -152,13 +161,20 @@ def get_all_news_sources() -> list[Source]:
     return source_list
 
 
-def get_news_time_span(stock: Stock, source: Source) -> (bool, datetime, datetime):
+def get_news_time_span(stock: Stock, source: Source, ticker_related: bool) -> (bool, datetime, datetime):
     cursor = conn.cursor()
     datetime_min: datetime = None
     datetime_max: datetime = None
     try:
-        query = 'SELECT min(pub_date), max(pub_date) FROM stock_news WHERE stock_id = %s AND news_source_id = %s'
-        cursor.execute(query, (stock.db_id, source.db_id))
+        query = """
+        SELECT min(pub_date), 
+               max(pub_date) 
+          FROM stock_news 
+         WHERE stock_id = %s
+           AND news_source_id = %s 
+           AND ticker_related = %s
+        """
+        cursor.execute(query, (stock.db_id, source.db_id, ticker_related))
         data = cursor.fetchone()
         datetime_min = data[0]
         datetime_max = data[1]
@@ -245,3 +261,6 @@ def cleanup_timeout(max_retries: int):
         conn.rollback()
     finally:
         cursor.close()
+
+
+get_dummy_source()

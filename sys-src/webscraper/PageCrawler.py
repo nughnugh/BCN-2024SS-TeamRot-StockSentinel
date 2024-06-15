@@ -18,34 +18,6 @@ class PageCrawler:
         self.client = requests.Session()
         self.client.headers.update(headers)
 
-    async def get_content(self) -> list[PageData]:
-        sentiment_tasks = []
-        error_pages = []
-        for page in self.pages:
-            try:
-                response = self.client.get(page.url, timeout=(2,2))
-                if response.status_code == 200:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                    page.content = soup.get_text()
-                    task = asyncio.create_task(analyze(page))
-                    sentiment_tasks.append(task)
-                    await asyncio.sleep(0.5 + random.randrange(1, 5) / 10.0)
-                else:
-                    logger.error(f"Error fetching the page: {response.status_code}")
-                    page.timeout = True
-                    error_pages.append(page)
-            except requests.exceptions.Timeout:
-                logger.error(f"Request to {page.url} timed out")
-                page.timeout = True
-                error_pages.append(page)
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Undefined request error {e}")
-                page.timeout = True
-                error_pages.append(page)
-        new_pages = error_pages
-        for task in sentiment_tasks:
-            new_pages.append(await task)
-
     async def process_page(self, page: PageData) -> PageData:
         try:
             response = self.client.get(page.url, timeout=(2 + page.timeout_cnt, 2 + page.timeout_cnt))
@@ -54,7 +26,7 @@ class PageCrawler:
                 page.content = soup.get_text()
                 page = analyze(page)
             else:
-                logger.error(f"Error fetching the page: {response.status_code}")
+                logger.error(f"Error fetching the page: {response.status_code} url={page.url}")
                 page.timeout_cnt += 1
         except requests.exceptions.Timeout:
             logger.error(f"Request to {page.url} timed out")
@@ -66,9 +38,10 @@ class PageCrawler:
     async def get_content(self) -> list[PageData]:
         tasks = []
         for page in self.pages:
-            task = self.process_page(page)
+            print('fetching page', page.url)
+            task = asyncio.create_task(self.process_page(page))
             tasks.append(task)
-            await asyncio.sleep(0.5 + random.randrange(1, 5) / 10.0)
+            await asyncio.sleep(1 + random.randrange(1, 10) / 10.0)
         new_pages = []
         for task in tasks:
             new_pages.append(await task)
