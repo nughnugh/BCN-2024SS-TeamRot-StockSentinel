@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 from Stock import Stock
 from fake_useragent import UserAgent
 
-stock = Stock("Apple", "AAPL")
-stocks = [stock]
+stock1 = Stock("Apple", "AAPL",0)
+stock2 = Stock("NVIDIA","NVDA",0)
+stockss = [stock1,stock2]
 
 class FinanceScraper:
     def __init__(self, stocks: list[Stock]):
@@ -15,29 +16,32 @@ class FinanceScraper:
 
     def get_stock_price(self):
         for stock in self.stocks:
-            url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}"
-            response = requests.get(url)
+            url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}/history/"
+            response = self.client.get(url)
 
             if response.status_code == 200:
                 soup = BeautifulSoup(response.text, 'html.parser')
-
-                price_span = soup.find('fin-streamer', {'data-symbol': stock.ticker_symbol, 'data-field': 'regularMarketPrice'})
-
-                if price_span:
-                    price_txt = price_span.txt
-                    return price_txt
+                
+                #price_span = soup.find('fin-streamer', class_='livePrice svelte-mgkamr', attrs={'data-symbol': stock.ticker_symbol})
+                #table = soup.find('table', class_='table svelte-ewueuo')
+                table = soup.find('tbody')
+                rows = table.find_all('tr')
+                todays_row = rows[0]
+                cells = todays_row.find_all('td')
+                price = cells[4].text
+                if price:
                     try:
-                        price = float(price_txt.replace(',', ''))
-                        return price
+                        price = float(price)
+                        stock.value = price
                     except ValueError:
-                        return "Fehler bei der Umwandlung des Preises"
-
+                        continue
                 else:
-                    return "Aktienpreis nicht gefunden"
+                    continue
             else:
-                return "Fehler beim Abrufen der Seite"
+                continue
 
 
-
-finScraper = FinanceScraper(stocks)
-print(finScraper.get_stock_price())
+finScraper = FinanceScraper(stockss)
+finScraper.get_stock_price()
+print(stock1.value)
+print(stock2.value)
