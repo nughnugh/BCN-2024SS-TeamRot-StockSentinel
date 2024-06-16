@@ -7,6 +7,7 @@ import logging
 
 from psycopg2.extras import execute_values
 
+from FinanceScraper import FinanceScraper
 from PageData import PageData
 from Source import Source
 from Stock import Stock
@@ -31,12 +32,12 @@ def insert_stock(stock: Stock) -> Stock:
     cursor = conn.cursor()
     try:
         query = 'SELECT EXISTS (SELECT 1 FROM stock WHERE name = %s OR ticker_symbol = %s)'
-        cursor.execute(query, (stock.name, stock.ticker_symbol))
+        cursor.execute(query, (stock.name, stock.ticker_symbol, stock.price))
         if cursor.fetchone()[0]:
-            logger.info(f'Stock already exists - {stock.name} {stock.ticker_symbol}')
+            logger.info(f'Stock already exists - {stock.name} {stock.ticker_symbol} {stock.price}')
         else:
-            query = 'INSERT INTO stock (name, ticker_symbol) VALUES (%s, %s) RETURNING stock_id'
-            cursor.execute(query, (stock.name, stock.ticker_symbol))
+            query = 'INSERT INTO stock (name, ticker_symbol,price) VALUES (%s, %s, %s) RETURNING stock_id'
+            cursor.execute(query, (stock.name, stock.ticker_symbol, stock.price))
             stock_id = cursor.fetchone()[0]
             stock.db_id = stock_id
             conn.commit()
@@ -119,11 +120,11 @@ def get_all_stocks() -> list[Stock]:
     cursor = conn.cursor()
     stock_list: list[Stock] = []
     try:
-        query = 'SELECT stock_id, name, ticker_symbol FROM stock'
+        query = 'SELECT stock_id, name, ticker_symbol,price FROM stock'
         cursor.execute(query)
         stocks = cursor.fetchall()
         for stock in stocks:
-            stock_list.append(Stock(db_id=stock[0], name=stock[1], ticker_symbol=stock[2]))
+            stock_list.append(Stock(db_id=stock[0], name=stock[1], ticker_symbol=stock[2], price=stock[3]))
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
@@ -262,5 +263,61 @@ def cleanup_timeout(max_retries: int):
     finally:
         cursor.close()
 
-
 get_dummy_source()
+def insert_stock_value():
+    stock_list = get_all_stocks()
+    cursor = conn.cursor()
+    try:
+        FinScraper = FinanceScraper(stock_list)
+        stock_list = FinScraper.get_stock_price()
+        for stock in stock_list:
+            query = 'UPDATE stock SET price = %? WHERE ticker_symbol = %?'
+            cursor.execute(query, (stock.name, stock.ticker_symbol,stock.price))
+        conn.commit()
+        logger.info('Stock values updated successfully')
+
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
+    finally:
+        cursor.close()
+
+"""
+def get_all_tables():
+    cursor = conn.cursor()
+    try:
+        query = ""
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+        ""
+        cursor.execute(query)
+        tables = cursor.fetchall()
+        for table in tables:
+            print(table[0])
+    except Exception as e:
+        print('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+
+get_all_tables()
+
+def get_table_columns(table_name):
+    cursor = conn.cursor()
+    try:
+        query = ""
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns
+        WHERE table_name = %s
+        ""
+        cursor.execute(query, (table_name,))
+        columns = cursor.fetchall()
+        for column in columns:
+            print(f"Name: {column[0]}, Type: {column[1]}, Nullable: {column[2]}, Default: {column[3]}")
+    except Exception as e:
+        print('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+
+get_table_columns('stock_price')  # Beispiel für die 'stock'-Tabelle
+"""
