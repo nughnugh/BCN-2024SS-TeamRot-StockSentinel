@@ -4,6 +4,6 @@ from Stock import Stock
 
 
 def db_setup():
-    insert_stock(Stock('Apple', 'AAPL',0))
+    insert_stock(Stock('Apple', 'AAPL'))
     insert_news_source(Source(DUMMY_SOURCE_STRING, ' '))
     insert_news_source(Source('Forbes', 'www.forbes.com'))
