@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from time import sleep
 
 from Database import get_all_stocks, get_all_news_sources, insert_stock_news_batch, remove_existing_news, \
-    get_news_time_span, DUMMY_SOURCE
+    get_news_time_span, get_dummy_source
 from GoogleCrawler import GoogleCrawler
 
 import logging
@@ -19,6 +19,9 @@ class SearchParams:
     def __init__(self, agg_days: int = 7, ticker_related: bool = False):
         self.agg_days = agg_days
         self.ticker_related = ticker_related
+
+
+DUMMY_SOURCE = get_dummy_source()
 
 
 class NewsProcess:
@@ -39,7 +42,6 @@ class NewsProcess:
             existing_sources[source.url] = source
 
         source_list.append(DUMMY_SOURCE)
-
         for stock in stock_list:
             for source in source_list:
                 work_min_date = None

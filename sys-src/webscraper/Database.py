@@ -1,12 +1,9 @@
 import datetime
-
 import psycopg2
 import os
 from dotenv import load_dotenv
 import logging
-
 from psycopg2.extras import execute_values
-
 from PageData import PageData
 from Source import Source
 from Stock import Stock
@@ -23,7 +20,6 @@ conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         port=os.getenv("PG_PORT")
                         )
 
-DUMMY_SOURCE: Source
 DUMMY_SOURCE_STRING = 'ANY_SOURCE'
 
 
@@ -133,16 +129,17 @@ def get_all_stocks() -> list[Stock]:
 
 def get_dummy_source():
     cursor = conn.cursor()
-    global DUMMY_SOURCE
+    source = None
     try:
         query = 'SELECT news_source_id, name, url FROM news_source WHERE name = %s'
         cursor.execute(query, [DUMMY_SOURCE_STRING])
         data = cursor.fetchone()
-        DUMMY_SOURCE = Source(db_id=data[0], name=data[1], url=data[2])
+        source = Source(db_id=data[0], name=data[1], url=data[2])
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
         cursor.close()
+    return source
 
 
 def get_all_news_sources() -> list[Source]:
@@ -263,4 +260,18 @@ def cleanup_timeout(max_retries: int):
         cursor.close()
 
 
-get_dummy_source()
+def insert_stock_price(entire_price_data):
+    cursor = conn.cursor()
+    for list in entire_price_data:
+        try:
+            query = """
+                INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
+            """
+            execute_values(cursor, query, list)
+            logger.info(f'inserted {len(list)} in stock_price')
+            conn.commit()
+        except Exception as e:
+            logger.error('unexpected exception: ' + repr(e))
+            conn.rollback()
+        finally:
+            cursor.close()
