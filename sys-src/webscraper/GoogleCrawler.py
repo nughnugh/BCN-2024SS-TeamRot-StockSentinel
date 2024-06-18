@@ -29,6 +29,8 @@ class SearchTimeAggregate:
 
 ddp = dateparser.date.DateDataParser()
 
+DUMMY_SOURCE = Database.get_dummy_source()
+
 
 class GoogleCrawler:
     def __init__(
@@ -101,7 +103,7 @@ class GoogleCrawler:
         if self.source.name != Database.DUMMY_SOURCE_STRING:
             source = self.source
         elif source_url not in self.existing_sources:
-            source = Database.DUMMY_SOURCE
+            source = DUMMY_SOURCE
         else:
             source = self.existing_sources[source_url]
 
