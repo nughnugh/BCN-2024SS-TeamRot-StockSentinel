@@ -9,7 +9,6 @@ from SentAnalyzer import analyze
 
 logger = logging.getLogger(__name__)
 
-#logger = logging.getLogger(__name__)
 
 class PageCrawler:
     def __init__(self, pages: list[PageData]):

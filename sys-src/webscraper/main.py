@@ -5,6 +5,7 @@ from datetime import datetime
 import nltk
 
 from Database import DUMMY_SOURCE_STRING
+from FinanceDataProcess import FinanceDataProcess
 from MyFormatter import MyFormatter
 from NewsProcess import NewsProcess, QueryMode, SearchParams
 import os
@@ -46,3 +47,7 @@ news_crawler.run()
 
 sentimentProcess = SentimentProcess()
 asyncio.run(sentimentProcess.run())
+
+FinProcess = FinanceDataProcess()
+FinProcess.push_data_to_db()
+
