@@ -8,11 +8,10 @@
         justify-content: left;
         align-items: center;
         width: 100%;
-        border: gainsboro solid 2px;
-        border-radius: 8px;
-        font-family: Arial, Helvetica, sans-serif;
-        background-color: gainsboro;
+        border-bottom: gainsboro solid 2px;
+        font-family: "Montserrat", sans-serif;
         margin-top: 0;
+        box-shadow: gainsboro 0 0 10px;
     }
 
     .title{
@@ -22,8 +21,16 @@
 
     nav a{
         text-decoration: none;
-        color: black;
+        color: grey;
         font-weight: bold;
+        padding: 10px;
+    }
+
+    nav a:hover{
+        background-color: darkgrey;
+        color: white;
+        border-radius: 5px;
+        padding: 10px;
     }
 </style>
 

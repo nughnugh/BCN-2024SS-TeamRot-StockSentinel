@@ -10,7 +10,7 @@
     .dashboard{
         display: flex;
         flex-direction: column;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Montserrat", sans-serif;
         padding-left: 50px;
         padding-right: 50px;
     }

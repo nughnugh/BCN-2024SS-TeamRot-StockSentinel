@@ -24,10 +24,9 @@
 
 <style>
     .stock_info{
-        border: gainsboro solid 2px;
         border-radius: 8px;
-        padding-left: 20px;
-        box-shadow: gainsboro 0px 0px 10px;
+        padding: 5px 20px;
+        box-shadow: grey 0 0 10px;
     }
 
     p{

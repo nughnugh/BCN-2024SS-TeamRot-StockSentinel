@@ -6,7 +6,7 @@
     main{
         padding-right: 50px;
         padding-left: 50px;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Montserrat", sans-serif;
     }
 </style>
 

@@ -3,8 +3,16 @@
     import thumbsDown from '$lib/assets/thumbsDown.png';
     import thumbNeutral from '$lib/assets/thumbNeutral.png';
 
-    let stocks = ["Stock Name 1", "Stock Name 2", "Stock Name 3", "Stock Name 4", "Stock Name 5", "Stock Name 6", "Stock Name 7", "Stock Name 8"];
-    let sentiments = [1, 1, 0, -1, 1, 0, -1, 0];
+    let stocks = [
+        {name: 'Apple', ticker: 'AAPL', sentiment: 1},
+        {name: 'Amazon', ticker: 'AMZN', sentiment: 1},
+        {name: 'Tesla', ticker: 'TSL', sentiment: 0},
+        {name: 'Random Stock', ticker: 'RST',sentiment: -1},
+        {name: 'Microsoft', ticker: 'MIC',sentiment: 1},
+        {name: 'Samsung', ticker: 'SMSG',sentiment: 0},
+        {name: 'Another Stock', ticker: 'AST',sentiment: -1},
+        {name: 'Last Stock', ticker: 'LAST',sentiment: 0}
+    ]
 
     function chooseThumb(sentiment: number){
         if(sentiment > 0){
@@ -15,6 +23,7 @@
             return thumbNeutral;
         }
     }
+
 </script>
 
 <style>
@@ -24,17 +33,15 @@
     }
 
     .stock_table{
-        border: gainsboro solid 2px;
+        border-collapse: collapse;
         border-radius: 8px;
-        padding-left: 20px;
-        padding-right: 20px;
-        box-shadow: gainsboro 0px 0px 10px;
+        box-shadow: grey 0 0 10px;
     }
 
     th{
         font-weight: bold;
         color: darkgrey;
-        padding-bottom: 10px;
+        padding: 10px 20px;
     }
 
     .table_title{
@@ -42,34 +49,44 @@
         color: black;
         text-align: left;
         font-size: large;
-        padding-top: 10px;
+        padding-top: 20px;
     }
 
-    .stock_headline{
+    .stocks{
         text-align: left;
+        width: fit-content;
     }
 
-    .sentiment_headline{
-        text-align: right;
-    }
-
-    td{
-        border-top: 1px solid gainsboro;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-
-    .stock_names{
-        text-align: left;
+    .ticker{
+        text-align: center;
+        width: auto;
     }
 
     .sentiment{
         text-align: right;
+        width: 5%;
+    }
+
+    td{
+        border-top: 1px solid gainsboro;
+        padding: 10px 20px;
+        margin-right:0;
+        margin-left: 0;
     }
 
     td a {
         text-decoration: none;
         color: black;
+        text-align: left;
+    }
+
+    td a:hover{
+        text-decoration: underline;
+    }
+
+    tbody tr:hover{
+        background: gainsboro;
+        border-radius: 8px;
     }
 
     img{
@@ -88,17 +105,19 @@
                     <th class = "table_title">Available Stocks</th>
                 </tr>
                 <tr>
-                    <th class = "stock_headline">Stock Name</th>
-                    <th class = "sentiment_headline">Sentiment</th>
+                    <th class = "stocks">Stock Name</th>
+                    <th class = "ticker">Ticker</th>
+                    <th class = "sentiment">Sentiment</th>
                 </tr>
             </thead>
             <tbody>
                 {#each stocks as stock, i}
                     <tr>
-                        <td class = "stock_names"><a href = "/dashboard">{stock}</a></td>
+                        <td class = "stocks" ><a href = "/dashboard">{stock.name}</a></td>
+                        <td class = "ticker"><a href = "/dashboard">{stock.ticker}</a></td>
                         <td class = "sentiment">
-                            {sentiments[i]}
-                            <img src={chooseThumb(sentiments[i])} alt = "thumb based on sentiment"/>
+                            {stock.sentiment}
+                            <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
                         </td>
                     </tr>
                 {/each}
