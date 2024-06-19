@@ -1,9 +1,14 @@
+from db_setup import db_setup
+import nltk
+
+db_setup()
+nltk.download('vader_lexicon')
+nltk.download('punkt')
+
 import asyncio
 import logging
 import sys
 from datetime import datetime
-import nltk
-
 from Database import DUMMY_SOURCE_STRING
 from FinanceDataProcess import FinanceDataProcess
 from MyFormatter import MyFormatter
@@ -11,10 +16,7 @@ from NewsProcess import NewsProcess, QueryMode, SearchParams
 import os
 
 from SentimentProcess import SentimentProcess
-from db_setup import db_setup
 
-nltk.download('vader_lexicon')
-nltk.download('punkt')
 
 if not os.path.exists("logs"):
     os.makedirs("logs")
@@ -32,8 +34,6 @@ logger.addHandler(consoleHandler)
 
 logger.setLevel(logging.INFO)
 
-db_setup()
-
 logger.info(f"=======================================")
 logger.info(f"Start process: {datetime.now()}")
 logger.info(f"=======================================")
@@ -50,4 +50,3 @@ asyncio.run(sentimentProcess.run())
 
 FinProcess = FinanceDataProcess()
 FinProcess.push_data_to_db()
-
