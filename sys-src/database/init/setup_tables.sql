@@ -50,6 +50,7 @@ create table stock_news
         constraint stock_news_news_source_news_source_id_fk
             references news_source,
     url              TEXT,
+	source_url		 TEXT,
     sentiment_exists boolean default false not null,
     sentiment        numeric,
     ticker_related   boolean,
