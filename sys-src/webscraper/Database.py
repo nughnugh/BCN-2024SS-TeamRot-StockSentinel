@@ -93,11 +93,11 @@ def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
     cursor = conn.cursor()
     collection = []
     for item in stock_news:
-        collection.append((item.stock.db_id, item.source.db_id, item.url, item.ticker_related, item.pub_date,
+        collection.append((item.stock.db_id, item.source.db_id, item.url, item.source_url, item.ticker_related, item.pub_date,
                            item.title))
     try:
         query = """
-            INSERT INTO stock_news (stock_id, news_source_id, url, ticker_related, pub_date, title) VALUES %s
+            INSERT INTO stock_news (stock_id, news_source_id, url, source_url, ticker_related, pub_date, title) VALUES %s
         """
         execute_values(cursor, query, collection)
         logger.info(f'inserted {len(stock_news)} stock news')
@@ -188,12 +188,12 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
     try:
         query = f"""
         SELECT
-          stock_news_id, url, title, timeout_cnt, news_source_id
+          stock_news_id, url, title, timeout_cnt, source_url
         FROM (
           SELECT
             ROW_NUMBER() OVER (
-                PARTITION BY news_source_id 
-                ORDER BY news_source_id, timeout_cnt asc, stock_news_id desc
+                PARTITION BY source_url 
+                ORDER BY source_url, timeout_cnt asc, stock_news_id desc
             ) AS rownum,
             t.*
           FROM
@@ -206,13 +206,13 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
         cursor.execute(query)
         records = cursor.fetchall()
         for record in records:
-            news_id = record[4]
-            if news_id not in news_buckets:
-                news_buckets[news_id] = []
-            news_buckets[news_id].append(
+            source_url = record[4]
+            if source_url not in news_buckets:
+                news_buckets[source_url] = []
+            news_buckets[source_url].append(
                 PageData(db_id=record[0], url=record[1], title=record[2], timeout_cnt=record[3],
-                         source=None, stock=None, pub_date=None, ticker_related=None,
-                         source_url=None))
+                         source_url=source_url, source=None, stock=None, pub_date=None,
+                         ticker_related=None))
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
