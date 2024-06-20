@@ -8,7 +8,7 @@ const port =  3000;
 
 const pool = new Pool({
     user: 'st_user', // Replace with DB user
-    host: 'host.docker.internal', // Replace with DB host
+    host: 'localhost', // Replace with DB host
     database: 'postgres', // Replace with DB name
     password: '123', // Replace with DB password
     port: 5432,
@@ -66,12 +66,16 @@ app.get('/api/sentimentSources/:stockName', async (req, res) => {
     const query =
     "SELECT "+
         "s.ticker_symbol, "+
-        "s.name AS stock_name "+
+        "s.name AS stock_name, "+
+        "sn.title, "+
+        "sn.sentiment, "+
+        "sn.url "+
     "FROM "+
         "stock_news sn, stock s "+
     "WHERE "+
         "s.name = '" + String(req.params.stockName) + "' "+
-        "AND  sn.stock_id = s.stock_id; ";
+        "AND  sn.stock_id = s.stock_id "+
+        "AND sn.sentiment_exists ;"
 
     try {
         const result = await pool.query(query);
