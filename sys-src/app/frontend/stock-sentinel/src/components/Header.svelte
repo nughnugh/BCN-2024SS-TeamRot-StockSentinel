@@ -11,12 +11,15 @@
         border-bottom: gainsboro solid 2px;
         font-family: "Montserrat", sans-serif;
         margin-top: 0;
+        padding: 20px;
         box-shadow: gainsboro 0 0 10px;
+        background-color: white;
     }
 
     .title{
         padding-right: 50px;
         padding-left: 50px;
+        font-weight: bold;
     }
 
     nav a{
