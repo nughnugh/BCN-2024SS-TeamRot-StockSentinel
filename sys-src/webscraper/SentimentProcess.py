@@ -16,7 +16,7 @@ class SentimentProcess:
             if len(news.keys()) == 0:
                 break
             for key in news.keys():
-                logger.info(f'Crawl {len(news[key])} pages for source_id={key}')
+                logger.info(f'Crawl {len(news[key])} pages for source={key}')
                 pages = news[key]
                 page_crawler = PageCrawler(pages=pages)
                 task = asyncio.create_task(page_crawler.get_content())
