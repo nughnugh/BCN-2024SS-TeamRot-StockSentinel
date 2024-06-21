@@ -2,6 +2,16 @@
     import thumbsUp from '$lib/assets/thumbsUp.png';
     import thumbsDown from '$lib/assets/thumbsDown.png';
     import thumbNeutral from '$lib/assets/thumbNeutral.png';
+    import {
+        TableBody,
+        TableBodyCell,
+        TableBodyRow,
+        TableHead,
+        TableHeadCell,
+        TableSearch
+    } from 'flowbite-svelte';
+
+    let searchTerm = '';
 
     let stocks = [
         {name: 'Apple', ticker: 'AAPL', sentiment: 1},
@@ -14,6 +24,8 @@
         {name: 'Last Stock', ticker: 'LAST',sentiment: 0}
     ]
 
+    $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+
     function chooseThumb(sentiment: number){
         if(sentiment > 0){
             return thumbsUp;
@@ -23,73 +35,38 @@
             return thumbNeutral;
         }
     }
-
 </script>
 
 <style>
-    .stock_info_div{
-        display: flex;
-        flex-direction: column;
+    h2{
+        padding-top: 20px;
+        padding-bottom: 20px;
+        font-weight: bold;
+        font-size: x-large;
+        color: black;
     }
 
     .stock_table{
-        border-collapse: collapse;
+        border: 1px solid gainsboro;
         border-radius: 8px;
-        box-shadow: grey 0 0 10px;
-    }
-
-    th{
-        font-weight: bold;
-        color: darkgrey;
-        padding: 10px 20px;
+        box-shadow: gainsboro 0 0 10px;
     }
 
     .table_title{
-        font-weight: bold;
-        color: black;
-        text-align: left;
-        font-size: large;
-        padding-top: 20px;
+        background-color: white;
+        font-size: larger;
     }
 
-    .stocks{
-        text-align: left;
-        width: fit-content;
+    .column_titles{
+        color: grey;
+        border-bottom: 1px solid gainsboro;
     }
 
-    .ticker{
-        text-align: center;
-        width: auto;
-    }
-
-    .sentiment{
-        text-align: right;
-        width: 5%;
-    }
-
-    td{
-        border-top: 1px solid gainsboro;
-        padding: 10px 20px;
-        margin-right:0;
-        margin-left: 0;
-    }
-
-    td a {
-        text-decoration: none;
-        color: black;
-        text-align: left;
-    }
-
-    td a:hover{
+    a:hover{
         text-decoration: underline;
     }
 
-    tbody tr:hover{
-        background: gainsboro;
-        border-radius: 8px;
-    }
-
-    img{
+    img {
         max-height: 20px;
         width: auto;
         padding-left: 10px;
@@ -97,31 +74,31 @@
 </style>
 
 <main>
-    <div class="stock_info_div">
-        <h2>Stock Overview</h2>
-        <table class="stock_table">
-            <thead>
-                <tr>
-                    <th class = "table_title">Available Stocks</th>
+    <h2>Stock Overview</h2>
+    <div class = "stock_table">
+        <TableSearch placeholder="Search stocks by name" hoverable={true} bind:inputValue={searchTerm}>
+            <TableHead defaultRow={false} theadClass="text-lg">
+                <tr class = "table_title">
+                    <TableHeadCell colspan="3"><h3>Available Stocks</h3></TableHeadCell>
                 </tr>
-                <tr>
-                    <th class = "stocks">Stock Name</th>
-                    <th class = "ticker">Ticker</th>
-                    <th class = "sentiment">Sentiment</th>
+                <tr class="column_titles">
+                    <TableHeadCell>Stock Name</TableHeadCell>
+                    <TableHeadCell>Ticker</TableHeadCell>
+                    <TableHeadCell  style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">Sentiment</TableHeadCell>
                 </tr>
-            </thead>
-            <tbody>
-                {#each stocks as stock, i}
-                    <tr>
-                        <td class = "stocks" ><a href = "/dashboard">{stock.name}</a></td>
-                        <td class = "ticker"><a href = "/dashboard">{stock.ticker}</a></td>
-                        <td class = "sentiment">
+            </TableHead>
+            <TableBody>
+                {#each filteredStocks as stock}
+                    <TableBodyRow>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker}</a></TableBodyCell>
+                        <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
                             {stock.sentiment}
-                            <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
-                        </td>
-                    </tr>
+                            <img src={chooseThumb(stock.sentiment)} alt="thumb based on sentiment"/>
+                        </TableBodyCell>
+                    </TableBodyRow>
                 {/each}
-            </tbody>
-        </table>
+            </TableBody>
+        </TableSearch>
     </div>
 </main>

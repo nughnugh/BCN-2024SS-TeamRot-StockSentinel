@@ -1,6 +1,5 @@
 <script>
     import Stocklist from "../components/Stocklist.svelte";
-    import StocklistNew from "../components/StocklistNew.svelte";
 </script>
 
 <style>
@@ -14,5 +13,5 @@
 
 
 <main>
-    <StocklistNew></StocklistNew>
+    <Stocklist></Stocklist>
 </main>

@@ -14,6 +14,7 @@
         padding: 20px;
         box-shadow: gainsboro 0 0 10px;
         background-color: white;
+        font-size: larger;
     }
 
     .title{

@@ -2,6 +2,15 @@
     import show from '$lib/assets/show.png';
     import hide from '$lib/assets/hide.png';
     import {chooseThumb} from './helper';
+    import {
+        Table,
+        TableBody,
+        TableBodyCell,
+        TableBodyRow,
+        TableHead,
+        TableHeadCell,
+    } from 'flowbite-svelte';
+
 
     let stocks = [
         {name: 'source1', articles: 1, sentiment: 1, visible: true},
@@ -14,95 +23,56 @@
         {name: 'source8', articles: 8, sentiment: 1, visible: true},
     ]
 
-    function toggleVisibility(index: number){
-        stocks[index].visible = !stocks[index].visible;
-    }
-
 </script>
 
 <style>
-    .stock_info_div{
-        display:flex;
-        flex-direction: column;
+    h2{
+        padding: 20px;
+        font-weight: bold;
+        color: black;
     }
 
     .sources_table{
+        border: 1px solid gainsboro;
         border-radius: 8px;
-        border-collapse: collapse;
-        box-shadow: grey 0 0 10px;
+        box-shadow: gainsboro 0 0 10px;
+        margin-bottom: 50px;
     }
 
-    th{
-        padding-left: 20px;
-        padding-right: 20px;
-        font-weight: bold;
-        color: darkgrey;
-        padding-bottom: 10px;
-        text-align: right;
+    .column_titles{
+        color: grey;
+        border-bottom: 1px solid gainsboro;
     }
 
-    .table_title{
-        font-weight: bold;
-        color: black;
-        text-align: left;
-        font-size: large;
-        padding-top: 15px;
-    }
-
-    td{
-        border-top: 1px solid gainsboro;
-        padding: 10px 20px;
-        text-align: right;
-    }
-
-    .sources{
-        text-align:left;
-        width: fit-content;
-    }
-
-    .articles{
-        text-align: center;
+    img {
+        max-height: 20px;
         width: auto;
-    }
-
-    .sentiment{
-        width: 10%;
-        text-align: center;
-    }
-
-    img{
-        max-height:20px;
-        width:auto;
+        padding-left: 10px;
     }
 </style>
 
 <main>
-    <div class="stock_info_div">
-        <table class="sources_table">
-            <thead>
-                <tr>
-                    <th class = "table_title">Sentiment Sources</th>
+    <div class="sources_table">
+        <h2>Sources Used</h2>
+        <Table>
+            <TableHead defaultRow={false} theadClass="text-base">
+                <tr class="column_titles">
+                    <TableHeadCell>Source</TableHeadCell>
+                    <TableHeadCell style = "text-align: center;">Articles</TableHeadCell>
+                    <TableHeadCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">Sentiment</TableHeadCell>
                 </tr>
-                <tr>
-                    <th class = "sources">Source</th>
-                    <th class = "articles">Articles</th>
-                    <th class = "sentiment">Sentiment</th>
-                </tr>
-            </thead>
-            <tbody>
+            </TableHead>
+            <TableBody>
                 {#each stocks as stock, i}
-                    <tr style = {stock.visible ? 'color: black' : 'color: lightgrey'}>
-                        <td class = "sources">{stock.name}</td>
-                        <td class = "articles">{stock.articles}</td>
-                        <td class = "sentiment"><img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/></td>
-                        <td>
-                            <button class="eye_button" on:click={() => toggleVisibility(i)}>
-                                <img src = {stock.visible ? show : hide} alt = "visibility eye button"/>
-                            </button>
-                        </td>
-                    </tr>
+                    <TableBodyRow style = {stock.visible ? 'color: black' : 'color: lightgrey'}>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base">{stock.name}</TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base" style = "text-align: center;">{stock.articles}</TableBodyCell>
+                        <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
+                            <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
+                        </TableBodyCell>
+                    </TableBodyRow>
                 {/each}
-            </tbody>
-        </table>
+            </TableBody>
+        </Table>
     </div>
 </main>
