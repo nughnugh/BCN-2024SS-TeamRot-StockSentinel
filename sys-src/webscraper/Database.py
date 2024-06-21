@@ -93,8 +93,8 @@ def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
     cursor = conn.cursor()
     collection = []
     for item in stock_news:
-        collection.append((item.stock.db_id, item.source.db_id, item.url, item.source_url, item.ticker_related, item.pub_date,
-                           item.title))
+        collection.append((item.stock.db_id, item.source.db_id, item.url, item.source_url, item.ticker_related,
+                           item.pub_date, item.title))
     try:
         query = """
             INSERT INTO stock_news (stock_id, news_source_id, url, source_url, ticker_related, pub_date, title) VALUES %s
@@ -182,9 +182,9 @@ def get_news_time_span(stock: Stock, source: Source, ticker_related: bool) -> (b
     return datetime_min, datetime_max
 
 
-def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
+def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
     cursor = conn.cursor()
-    news_buckets: dict[int, list[PageData]] = {}
+    news_buckets: dict[str, list[PageData]] = {}
     try:
         query = f"""
         SELECT
@@ -193,7 +193,7 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
           SELECT
             ROW_NUMBER() OVER (
                 PARTITION BY source_url 
-                ORDER BY source_url, timeout_cnt asc, stock_news_id desc
+                ORDER BY source_url, timeout_cnt asc, pub_date desc
             ) AS rownum,
             t.*
           FROM
@@ -228,14 +228,15 @@ def update_news(news_list: list[PageData]):
         set
             sentiment_exists = t.sentiment_exists,
             sentiment = t.sentiment,
+            description = t.description,
             timeout_cnt = t.timeout_cnt
-        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt)
+        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt, description)
         where s.stock_news_id = t.stock_news_id;
     """
     rows_to_update = []
     for news in news_list:
         rows_to_update.append(
-            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt)
+            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt, news.description)
         )
     try:
         execute_values(cursor, query, rows_to_update)

@@ -16,12 +16,10 @@ class QueryMode:
 
 
 class SearchParams:
-    def __init__(self, agg_days: int = 7, ticker_related: bool = False):
+    def __init__(self, agg_days: int = 7, ticker_related: bool = False, max_cnt_per_agg: int = 10):
         self.agg_days = agg_days
         self.ticker_related = ticker_related
-
-
-DUMMY_SOURCE = get_dummy_source()
+        self.max_cnt_per_agg = max_cnt_per_agg
 
 
 class NewsProcess:
@@ -41,7 +39,6 @@ class NewsProcess:
         for source in source_list:
             existing_sources[source.url] = source
 
-        source_list.append(DUMMY_SOURCE)
         for stock in stock_list:
             for source in source_list:
                 work_min_date = None
@@ -83,12 +80,10 @@ class NewsProcess:
                                                    source=source, search_by_ticker=search_params.ticker_related)
 
                     stock_news = google_crawler.run()
+                    stock_news = stock_news[:search_params.max_cnt_per_agg]
                     prev_cnt = len(stock_news)
                     stock_news = remove_existing_news(stock_news)
-                    logger.info(f"crawled {len(stock_news)} new articles ({prev_cnt} total)")
                     insert_stock_news_batch(stock_news)
+                    logger.info(f"inserted {len(stock_news)} new articles ({prev_cnt} total)")
                     work_max_date = start_date - timedelta(days=1)
                     sleep(0.5)
-
-            # googleCrawler = GoogleCrawler(stock, existing_sources, 'd', 7, search_by_ticker=True)
-            # insert_stock_news_batch(stock_news)
