@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from Stock import Stock
 from fake_useragent import UserAgent
 from Database import get_all_stocks
+from Database import get_finance_time
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +19,9 @@ class FinanceScraper:
         headers = {"User-Agent": UserAgent(platforms='pc').random}
         self.client = requests.Session()
         self.client.headers.update(headers)
+        self.used_dates = get_finance_time()
 
     def get_stock_price(self, stock: Stock):
-        print(stock.db_id)
         url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}/history/"
         response = self.client.get(url)
 
@@ -37,10 +38,11 @@ class FinanceScraper:
                 date = cells[0].text
                 if price and date:
                     try:
-                        price = float(price)
-                        date = datetime.strptime(date, "%b %d, %Y")
-                        stock_tuple = (stock.db_id, date, price)
-                        price_data.append(stock_tuple)
+                        if date not in self.used_dates:
+                            price = float(price)
+                            date = datetime.strptime(date, "%b %d, %Y")
+                            stock_tuple = (stock.db_id, date, price)
+                            price_data.append(stock_tuple)
                     except ValueError:
                         logger.error(f"Could not parse price {price}")
         return price_data
