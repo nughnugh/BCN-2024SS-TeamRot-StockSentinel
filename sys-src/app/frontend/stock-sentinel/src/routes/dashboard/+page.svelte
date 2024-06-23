@@ -3,9 +3,8 @@
     import Sentiment from "../../components/Sentiment.svelte";
     import Sources from "../../components/Sources.svelte";
     import Graph from "../../components/Graph.svelte";
-    import GraphTest from "../../components/GraphTest.svelte";
 
-    $: stock = "Placeholder Stock Name";
+    $: stock = 'placeholder'
 </script>
 
 <style>
@@ -48,7 +47,6 @@
             <div class = "price"><Price></Price></div>
             <div class = "sentiment"><Sentiment></Sentiment></div>
         </div>
-        <GraphTest></GraphTest>
         <Graph></Graph>
         <Sources></Sources>
     </div>

@@ -8,11 +8,12 @@
         TableBodyRow,
         TableHead,
         TableHeadCell,
-        TableSearch
+        TableSearch,
     } from 'flowbite-svelte';
 
     let searchTerm = '';
 
+    //example stocks
     let stocks = [
         {name: 'Apple', ticker: 'AAPL', sentiment: 1},
         {name: 'Amazon', ticker: 'AMZN', sentiment: 1},

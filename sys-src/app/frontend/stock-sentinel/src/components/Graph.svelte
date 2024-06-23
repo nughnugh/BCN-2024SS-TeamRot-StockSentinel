@@ -8,7 +8,8 @@
         LineElement,
         LinearScale,
         PointElement,
-        CategoryScale
+        CategoryScale,
+        Filler
     } from 'chart.js';
 
     ChartJS.register(
@@ -18,7 +19,8 @@
         LineElement,
         LinearScale,
         PointElement,
-        CategoryScale
+        CategoryScale,
+        Filler
     );
 
     $: data = {
@@ -27,18 +29,23 @@
             {
                 label: 'Sentiment',
                 data: [0.45, -0.23, 0.76, -0.34, 0.50, 0.12, -0.78, 0.36, -0.45, 0.67, -0.19, 0.85, -0.55, 0.27, -0.10, 0.53, -0.37, 0.60, -0.25, 0.80],
-                borderColor: 'green',
-                backgroundColor: 'green',
-                borderWidth: 2,
                 yAxisID: 'y',
                 tension: 0.3,
-                fill: true
+                borderWidth: 0,
+                fill: {
+                    target: 'origin',
+                    above: 'rgba(0, 150, 100, 0.8)',
+                    below: 'rgba(255, 0, 0, 0.8)'
+                },
+                pointRadius: 1
             },
             {
                 label: 'Price',
                 data: [150, 145, 155, 142, 148, 151, 140, 147, 144, 153, 149, 157, 141, 150, 148, 152, 143, 154, 146, 158],
-                borderColor: 'blue',
-                borderWidth: 2,
+                borderColor: 'black',
+                borderWidth: 1,
+                pointRadius: 1,
+                tension:0.2,
                 fill: false,
                 yAxisID: 'y1'
             }
@@ -54,8 +61,16 @@
         border-radius: 8px;
         margin-bottom: 50px;
     }
+
+    h2{
+        font-weight: bold;
+        font-size: larger;
+    }
 </style>
 
 <main>
-    <Line {data} height = {700} options={{responsive: true, maintainAspectRatio: false}} />
+    <h2>Historical Sentiment and Price</h2>
+    <div class="graph">
+        <Line {data} height = {700} options={{responsive: true, maintainAspectRatio: false}} />
+    </div>
 </main>
