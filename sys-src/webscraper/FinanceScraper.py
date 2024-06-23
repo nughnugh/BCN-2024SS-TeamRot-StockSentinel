@@ -19,9 +19,9 @@ class FinanceScraper:
         headers = {"User-Agent": UserAgent(platforms='pc').random}
         self.client = requests.Session()
         self.client.headers.update(headers)
-        self.used_dates = get_finance_time()
+        self.date_range = get_finance_time()
 
-    def get_stock_price(self, stock: Stock):
+    def get_stock_price(self, stock: Stock, date_range: dict):
         url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}/history/"
         response = self.client.get(url)
 
@@ -29,6 +29,7 @@ class FinanceScraper:
             soup = BeautifulSoup(response.text, 'html.parser')
             table = soup.find('tbody')
             rows = table.find_all('tr')
+
             for row in rows:
                 cells = row.find_all('td')
                 if len(cells) > 2:      #Dividendenzeilen sollen übersprungen werden
@@ -36,18 +37,23 @@ class FinanceScraper:
                 else:
                     continue
                 date = cells[0].text
+
                 if price and date:
                     try:
-                        if date not in self.used_dates:
+                        date = datetime.strptime(date, "%b %d, %Y")
+
+                        min_max = date_range.get(stock.db_id)
+
+                        if date < min_max[0] or date > min_max[1]:
                             price = float(price)
-                            date = datetime.strptime(date, "%b %d, %Y")
                             stock_tuple = (stock.db_id, date, price)
                             price_data.append(stock_tuple)
+
                     except ValueError:
                         logger.error(f"Could not parse price {price}")
         return price_data
 
     def get_all_prices(self):
         for stock in self.stocks:
-            price_data_super.append(self.get_stock_price(stock))
+            price_data_super.append(self.get_stock_price(stock, self.date_range))
             return price_data_super

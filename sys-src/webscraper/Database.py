@@ -8,6 +8,7 @@ from PageData import PageData
 from Source import Source
 from Stock import Stock
 from datetime import datetime
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -278,20 +279,39 @@ def insert_stock_price(entire_price_data):
         finally:
             cursor.close()
 
-def get_finance_time() -> list[datetime]:
+def get_finance_time() -> dict:
     cursor = conn.cursor()
-    date_list: list[datetime] = []
+    date_dic = defaultdict(list)
+    min_max_date = {}
     try:
-        query = 'SELECT stock_price_time FROM stock_price'
+        query = 'SELECT stock_price_time, stock_id FROM stock_price'
         cursor.execute(query)
         dates = cursor.fetchall()
+
         for date in dates:
-            date_str = str(date[0])
-            date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S%z")
-            formatted_date = date_obj.strftime("%b").lstrip('0') + f' {date_obj.day}, {date_obj.year}'
-            date_list.append(formatted_date)
+            date_time, stock_id = date
+            date_obj = date_time.strftime("%Y-%m-%d %H:%M:%S%z")
+            date_dic[stock_id].append(date_obj)
+
+        for stock_id, date_list in date_dic.items():
+            min_date = min(date_list)
+            max_date = max(date_list)
+
+            min_date = min_date[:-14]
+            max_date = max_date[:-14]
+
+            min_date = datetime.strptime(min_date, '%Y-%m-%d')
+            max_date = datetime.strptime(max_date, '%Y-%m-%d')
+
+            #min_date = min_obj.strftime("%b").lstrip('0') + f' {min_obj.day}, {min_obj.year}'
+            #max_date = max_obj.strftime("%b").lstrip('0') + f' {max_obj.day}, {max_obj.year}'
+
+            min_max_date[stock_id] = (min_date, max_date)
+
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
         cursor.close()
-    return date_list
+    return min_max_date
+
+get_finance_time()
