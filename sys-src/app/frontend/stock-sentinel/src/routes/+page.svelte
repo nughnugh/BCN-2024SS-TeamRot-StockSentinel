@@ -13,5 +13,6 @@
 
 
 <main>
+    <a href = "/slugTest">go to slug test</a>
     <Stocklist></Stocklist>
 </main>
