@@ -53,3 +53,4 @@ asyncio.run(sentimentProcess.run())
 """
 FinProcess = FinanceDataProcess()
 FinProcess.push_data_to_db()
+

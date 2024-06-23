@@ -276,8 +276,7 @@ def insert_stock_price(entire_price_data):
         except Exception as e:
             logger.error('unexpected exception: ' + repr(e))
             conn.rollback()
-        finally:
-            cursor.close()
+    cursor.close()
 
 def get_finance_time() -> dict:
     cursor = conn.cursor()
@@ -302,9 +301,6 @@ def get_finance_time() -> dict:
 
             min_date = datetime.strptime(min_date, '%Y-%m-%d')
             max_date = datetime.strptime(max_date, '%Y-%m-%d')
-
-            #min_date = min_obj.strftime("%b").lstrip('0') + f' {min_obj.day}, {min_obj.year}'
-            #max_date = max_obj.strftime("%b").lstrip('0') + f' {max_obj.day}, {max_obj.year}'
 
             min_max_date[stock_id] = (min_date, max_date)
 

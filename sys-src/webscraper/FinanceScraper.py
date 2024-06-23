@@ -5,13 +5,8 @@ from bs4 import BeautifulSoup
 from Stock import Stock
 from fake_useragent import UserAgent
 from Database import get_all_stocks
-from Database import get_finance_time
 
 logger = logging.getLogger(__name__)
-
-price_data = []
-price_data_super = []
-
 
 class FinanceScraper:
     def __init__(self):
@@ -19,9 +14,9 @@ class FinanceScraper:
         headers = {"User-Agent": UserAgent(platforms='pc').random}
         self.client = requests.Session()
         self.client.headers.update(headers)
-        self.date_range = get_finance_time()
 
-    def get_stock_price(self, stock: Stock, date_range: dict):
+    def get_stock_price(self, stock: Stock, min_max: tuple):
+        price_data = []
         url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}/history/"
         response = self.client.get(url)
 
@@ -41,10 +36,10 @@ class FinanceScraper:
                 if price and date:
                     try:
                         date = datetime.strptime(date, "%b %d, %Y")
+                        if min_max is None:
+                            min_max = (datetime(6666, 6, 7), datetime(2002, 7, 5))
 
-                        min_max = date_range.get(stock.db_id)
-
-                        if date < min_max[0] or date > min_max[1]:
+                        if (date < min_max[0]) or (date > min_max[1]):  #nur neue Daten von Interesse
                             price = float(price)
                             stock_tuple = (stock.db_id, date, price)
                             price_data.append(stock_tuple)
@@ -53,7 +48,10 @@ class FinanceScraper:
                         logger.error(f"Could not parse price {price}")
         return price_data
 
-    def get_all_prices(self):
+    def get_all_prices(self, date_range: dict):
+        price_data_super = []
         for stock in self.stocks:
-            price_data_super.append(self.get_stock_price(stock, self.date_range))
-            return price_data_super
+            print(stock.ticker_symbol)
+            min_max = date_range.get(stock.db_id)
+            price_data_super.append(self.get_stock_price(stock, min_max))
+        return price_data_super
