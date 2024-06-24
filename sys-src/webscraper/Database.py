@@ -7,6 +7,8 @@ from psycopg2.extras import execute_values
 from PageData import PageData
 from Source import Source
 from Stock import Stock
+from datetime import datetime
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +95,8 @@ def insert_stock_news_batch(stock_news: list[PageData]) -> list[PageData]:
     cursor = conn.cursor()
     collection = []
     for item in stock_news:
-        collection.append((item.stock.db_id, item.source.db_id, item.url, item.source_url, item.ticker_related, item.pub_date,
-                           item.title))
+        collection.append((item.stock.db_id, item.source.db_id, item.url, item.source_url, item.ticker_related,
+                           item.pub_date, item.title))
     try:
         query = """
             INSERT INTO stock_news (stock_id, news_source_id, url, source_url, ticker_related, pub_date, title) VALUES %s
@@ -182,9 +184,9 @@ def get_news_time_span(stock: Stock, source: Source, ticker_related: bool) -> (b
     return datetime_min, datetime_max
 
 
-def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
+def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
     cursor = conn.cursor()
-    news_buckets: dict[int, list[PageData]] = {}
+    news_buckets: dict[str, list[PageData]] = {}
     try:
         query = f"""
         SELECT
@@ -193,7 +195,7 @@ def get_unprocessed_news(limit_per_source) -> dict[int, list[PageData]]:
           SELECT
             ROW_NUMBER() OVER (
                 PARTITION BY source_url 
-                ORDER BY source_url, timeout_cnt asc, stock_news_id desc
+                ORDER BY source_url, timeout_cnt asc, pub_date desc
             ) AS rownum,
             t.*
           FROM
@@ -228,14 +230,15 @@ def update_news(news_list: list[PageData]):
         set
             sentiment_exists = t.sentiment_exists,
             sentiment = t.sentiment,
+            description = t.description,
             timeout_cnt = t.timeout_cnt
-        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt)
+        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt, description)
         where s.stock_news_id = t.stock_news_id;
     """
     rows_to_update = []
     for news in news_list:
         rows_to_update.append(
-            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt)
+            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt, news.description)
         )
     try:
         execute_values(cursor, query, rows_to_update)
@@ -273,5 +276,38 @@ def insert_stock_price(entire_price_data):
         except Exception as e:
             logger.error('unexpected exception: ' + repr(e))
             conn.rollback()
-        finally:
-            cursor.close()
+    cursor.close()
+
+def get_finance_time() -> dict:
+    cursor = conn.cursor()
+    date_dic = defaultdict(list)
+    min_max_date = {}
+    try:
+        query = 'SELECT stock_price_time, stock_id FROM stock_price'
+        cursor.execute(query)
+        dates = cursor.fetchall()
+
+        for date in dates:
+            date_time, stock_id = date
+            date_obj = date_time.strftime("%Y-%m-%d %H:%M:%S%z")
+            date_dic[stock_id].append(date_obj)
+
+        for stock_id, date_list in date_dic.items():
+            min_date = min(date_list)
+            max_date = max(date_list)
+
+            min_date = min_date[:-14]
+            max_date = max_date[:-14]
+
+            min_date = datetime.strptime(min_date, '%Y-%m-%d')
+            max_date = datetime.strptime(max_date, '%Y-%m-%d')
+
+            min_max_date[stock_id] = (min_date, max_date)
+
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+    return min_max_date
+
+get_finance_time()

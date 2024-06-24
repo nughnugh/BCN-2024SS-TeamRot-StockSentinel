@@ -18,9 +18,13 @@ class PageData:
         self.url = url
         self.title = title
         self.pub_date = pub_date
-        self.content = ""
         self.sentiment_exists = False,
         self.sentiment = [0.0,0.0,0.0,0.0]      #negativ, neutral, positiv, compound
         self.timeout_cnt = timeout_cnt
         self.source_url = source_url
         self.ticker_related = ticker_related
+
+        self.content = ""
+        self.headline = None
+        self.description = None
+        self.keywords = None
