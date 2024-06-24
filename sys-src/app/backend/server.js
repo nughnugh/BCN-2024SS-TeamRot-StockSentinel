@@ -1,6 +1,6 @@
 const express = require('express');
 const { Pool } = require('pg');
-
+const cors = require('cors');
 const app = express();
 const port =  3000;
 
@@ -12,6 +12,7 @@ const pool = new Pool({
     port: 5432,
 });
 
+app.use(cors());
 
 app.get('/api/sentiments',async (req, res) => {
 
@@ -131,3 +132,4 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
 
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
+app.use(cors({origin: 'http://localhost:5173'}))

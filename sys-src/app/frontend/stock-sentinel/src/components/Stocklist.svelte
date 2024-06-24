@@ -10,22 +10,22 @@
         TableHeadCell,
         TableSearch,
     } from 'flowbite-svelte';
+
     import {onMount} from "svelte";
 
-    const endpoint = "http://localhost:3000/api/sentiments";
     let stocks: Stock[] = [];
 
     onMount(async function () {
-        const response = await fetch(endpoint);
+        const response = await fetch("http://localhost:3000/api/sentiments");
         const data = await response.json();
         console.log(data);
+        console.log("TEST");
         stocks = data;
     });
-
     interface Stock{
-        name: String;
-        ticker_symbol: String;
-        AVG_Sentiment: number;
+        name: string;
+        ticker_symbol: string;
+        avg_sentiment: string;
     }
 
     //export let name;
@@ -45,10 +45,10 @@
 
     //$: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
 
-    function chooseThumb(sentiment: number){
-        if(sentiment > 0){
+    function chooseThumb(sentiment: string){
+        if(Number (sentiment) > 0){
             return thumbsUp;
-        } else if (sentiment < 0){
+        } else if (Number (sentiment) < 0){
             return thumbsDown;
         } else {
             return thumbNeutral;
@@ -112,8 +112,8 @@
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker_symbol}</a></TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
-                            {stock.AVG_Sentiment}
-                            <img src={chooseThumb(stock.AVG_Sentiment)} alt="thumb based on sentiment"/>
+                            {Math.round(Number(stock.avg_sentiment)*100)/ 100}
+                            <img src={chooseThumb(stock.avg_sentiment)} alt="thumb based on sentiment"/>
                         </TableBodyCell>
                     </TableBodyRow>
                 {/each}
