@@ -47,10 +47,10 @@
         <h2>{data.title}</h2>
         <div class = "info">
             <div class = "price"><Price bind:title></Price></div>
-            <div class = "sentiment"><Sentiment></Sentiment></div>
+            <div class = "sentiment"><Sentiment bind:title></Sentiment></div>
         </div>
         <Graph></Graph>
-        <Sources></Sources>
+        <Sources bind:title></Sources>
     </div>
 </main>
 

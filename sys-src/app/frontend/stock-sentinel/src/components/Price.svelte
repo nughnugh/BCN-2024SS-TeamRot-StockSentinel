@@ -1,6 +1,7 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
+    let date = new Date();
 
     export let title:string;
     let prices: Price[] = [];
@@ -9,7 +10,6 @@
         const response = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
         const params = await response.json();
         console.log(params);
-        console.log("TEST");
         prices = params;
     });
     interface Price{
@@ -48,8 +48,10 @@
 <main>
     <div class = "price_info">
         <h3>Current Price</h3>
-        {#each prices as price}
-        <h2>{price.stock_price_val}</h2>
+        {#each prices as price, i}
+            {#if i === 0}
+                <h2>${price.stock_price_val}</h2>
+            {/if}
         {/each}
         <p>Price at Market Close</p>
     </div>

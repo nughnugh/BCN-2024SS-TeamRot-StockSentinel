@@ -111,7 +111,8 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
     const query =
         "SELECT "+
             "s.ticker_symbol, "+
-            "sn.source_url, "+
+            "sn.source_url, " +
+            "AVG(sn.sentiment) AS sentiment,"+
             "COUNT(sn.url) AS articles "+
         "FROM "+
             "stock_news sn, stock s "+

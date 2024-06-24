@@ -19,7 +19,6 @@
         const response = await fetch("http://localhost:3000/api/sentiments");
         const data = await response.json();
         console.log(data);
-        console.log("TEST");
         stocks = data;
     });
     interface Stock{
