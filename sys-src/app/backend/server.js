@@ -4,13 +4,11 @@ const { Pool } = require('pg');
 const app = express();
 const port =  3000;
 
-
-
 const pool = new Pool({
-    user: 'st_user', // Replace with DB user
-    host: 'localhost', // Replace with DB host
-    database: 'postgres', // Replace with DB name
-    password: '123', // Replace with DB password
+    user: 'st_user',
+    host: 'localhost',
+    database: 'postgres',
+    password: '123',
     port: 5432,
 });
 
