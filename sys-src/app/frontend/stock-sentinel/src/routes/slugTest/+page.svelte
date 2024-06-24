@@ -7,7 +7,7 @@
 {#each data.items as choice}
     <div>
         <p>{choice.text}</p>
-        <a href={'/slugTest/${choice.name}'}>{choice.name}</a>
+        <a href='/slugTest/{choice.name}'>{choice.name}</a>
     </div>
 {/each}
 

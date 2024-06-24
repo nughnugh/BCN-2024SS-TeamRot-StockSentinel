@@ -45,7 +45,7 @@
                 borderColor: 'black',
                 borderWidth: 1,
                 pointRadius: 1,
-                tension:0.2,
+                tension:0.3,
                 fill: false,
                 yAxisID: 'y1'
             }

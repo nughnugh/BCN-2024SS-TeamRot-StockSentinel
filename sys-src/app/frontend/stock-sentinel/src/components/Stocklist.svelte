@@ -10,10 +10,28 @@
         TableHeadCell,
         TableSearch,
     } from 'flowbite-svelte';
+    import {onMount} from "svelte";
 
+    const endpoint = "http://localhost:3000/api/sentiments";
+    let stocks: Stock[] = [];
+
+    onMount(async function () {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        console.log(data);
+        stocks = data;
+    });
+
+    interface Stock{
+        name: String;
+        ticker_symbol: String;
+        AVG_Sentiment: number;
+    }
+
+    //export let name;
     let searchTerm = '';
 
-    //example stocks
+    /*//example stocks
     let stocks = [
         {name: 'Apple', ticker: 'AAPL', sentiment: 1},
         {name: 'Amazon', ticker: 'AMZN', sentiment: 1},
@@ -23,9 +41,9 @@
         {name: 'Samsung', ticker: 'SMSG',sentiment: 0},
         {name: 'Another Stock', ticker: 'AST',sentiment: -1},
         {name: 'Last Stock', ticker: 'LAST',sentiment: 0}
-    ]
+    ]*/
 
-    $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+    //$: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
 
     function chooseThumb(sentiment: number){
         if(sentiment > 0){
@@ -89,13 +107,13 @@
                 </tr>
             </TableHead>
             <TableBody>
-                {#each filteredStocks as stock}
+                {#each stocks as stock}
                     <TableBodyRow>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker_symbol}</a></TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
-                            {stock.sentiment}
-                            <img src={chooseThumb(stock.sentiment)} alt="thumb based on sentiment"/>
+                            {stock.AVG_Sentiment}
+                            <img src={chooseThumb(stock.AVG_Sentiment)} alt="thumb based on sentiment"/>
                         </TableBodyCell>
                     </TableBodyRow>
                 {/each}
