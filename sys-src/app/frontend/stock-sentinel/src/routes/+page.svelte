@@ -4,13 +4,15 @@
 
 <style>
     main{
-        padding-right: 50px;
         padding-left: 50px;
-        font-family: Arial, Helvetica, sans-serif;
+        padding-right: 50px;
+        padding-bottom: 50px;
+        font-family: "Montserrat", sans-serif;
     }
 </style>
 
 
 <main>
+    <a href = "/slugTest">go to slug test</a>
     <Stocklist></Stocklist>
 </main>

@@ -2,17 +2,25 @@
     import Price from "../../components/Price.svelte";
     import Sentiment from "../../components/Sentiment.svelte";
     import Sources from "../../components/Sources.svelte";
+    import Graph from "../../components/Graph.svelte";
 
-    let stock = "Placeholder Stock Name";
+    $: stock = 'placeholder'
 </script>
 
 <style>
     .dashboard{
         display: flex;
         flex-direction: column;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Montserrat", sans-serif;
         padding-left: 50px;
         padding-right: 50px;
+    }
+
+    h2{
+        font-size: x-large;
+        font-weight: bold;
+        padding-top: 20px;
+        padding-bottom: 20px;
     }
 
     .info{
@@ -39,6 +47,7 @@
             <div class = "price"><Price></Price></div>
             <div class = "sentiment"><Sentiment></Sentiment></div>
         </div>
+        <Graph></Graph>
         <Sources></Sources>
     </div>
 </main>

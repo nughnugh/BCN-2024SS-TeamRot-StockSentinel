@@ -24,10 +24,24 @@
 
 <style>
     .stock_info{
-        border: gainsboro solid 2px;
         border-radius: 8px;
-        padding-left: 20px;
-        box-shadow: gainsboro 0px 0px 10px;
+        padding: 10px 20px;
+        box-shadow: gainsboro 0 0 10px;
+        border: 1px solid gainsboro;
+    }
+
+    h3, h2, p{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    h3{
+        font-weight: bold;
+    }
+
+    h2{
+        font-size: larger;
+        font-weight: bold;
     }
 
     p{
