@@ -25,24 +25,27 @@ logger = logging.getLogger()
 
 fileHandler = logging.FileHandler(f"logs/crawler_{datetime.today().date()}.log")
 fileHandler.setFormatter(MyFormatter(False))
+fileHandler.setLevel(logging.INFO)
 
 consoleHandler = logging.StreamHandler(stream=sys.stdout)
 consoleHandler.setFormatter(MyFormatter(True))
+consoleHandler.setLevel(logging.INFO)
 
 logger.addHandler(fileHandler)
 logger.addHandler(consoleHandler)
-
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 logger.info(f"=======================================")
 logger.info(f"Start process: {datetime.now()}")
 logger.info(f"=======================================")
 
 special_search_params = {
-    DUMMY_SOURCE_STRING: SearchParams(7, True)
+    DUMMY_SOURCE_STRING: SearchParams(30, True, 20),
+    "Forbes": SearchParams(30, False, 20)
 }
+
 news_crawler = NewsProcess(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
-                           SearchParams(30, False), special_search_params)
+                           SearchParams(30, True, 20), special_search_params)
 news_crawler.run()
 
 sentimentProcess = SentimentProcess()
@@ -50,3 +53,4 @@ asyncio.run(sentimentProcess.run())
 
 FinProcess = FinanceDataProcess()
 FinProcess.push_data_to_db()
+

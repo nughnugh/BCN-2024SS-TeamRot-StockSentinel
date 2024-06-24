@@ -56,6 +56,7 @@ create table stock_news
     ticker_related   boolean,
     pub_date         timestamptz NOT NULL,
     title            TEXT,
+    description      TEXT,
     timeout_cnt      integer default 0     not null,
 	primary key(stock_news_id, pub_date)
 );
