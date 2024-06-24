@@ -1,5 +1,21 @@
-<script>
-    $: price = "$XX,XXX.XX";
+<script lang="ts">
+
+    import {onMount} from "svelte";
+
+    export let title:string;
+    let prices: Price[] = [];
+
+    onMount(async function () {
+        const response = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
+        const params = await response.json();
+        console.log(params);
+        console.log("TEST");
+        prices = params;
+    });
+    interface Price{
+        stock_price_val: string;
+        stock_price_time: string;
+    }
 </script>
 
 <style>
@@ -32,7 +48,9 @@
 <main>
     <div class = "price_info">
         <h3>Current Price</h3>
-        <h2>{price}</h2>
+        {#each prices as price}
+        <h2>{price.stock_price_val}</h2>
+        {/each}
         <p>Price at Market Close</p>
     </div>
 </main>

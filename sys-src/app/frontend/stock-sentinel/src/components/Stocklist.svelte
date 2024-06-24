@@ -97,8 +97,8 @@
             <TableBody>
                 {#each filteredStocks as stock}
                     <TableBodyRow>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker_symbol}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard/{stock.name}">{stock.name}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard/{stock.name}">{stock.ticker_symbol}</a></TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
                             {Math.round(Number(stock.avg_sentiment)*100)/ 100}
                             <img src={chooseThumb(stock.avg_sentiment)} alt="thumb based on sentiment"/>
