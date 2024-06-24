@@ -31,19 +31,7 @@
     //export let name;
     let searchTerm = '';
 
-    /*//example stocks
-    let stocks = [
-        {name: 'Apple', ticker: 'AAPL', sentiment: 1},
-        {name: 'Amazon', ticker: 'AMZN', sentiment: 1},
-        {name: 'Tesla', ticker: 'TSL', sentiment: 0},
-        {name: 'Random Stock', ticker: 'RST',sentiment: -1},
-        {name: 'Microsoft', ticker: 'MIC',sentiment: 1},
-        {name: 'Samsung', ticker: 'SMSG',sentiment: 0},
-        {name: 'Another Stock', ticker: 'AST',sentiment: -1},
-        {name: 'Last Stock', ticker: 'LAST',sentiment: 0}
-    ]*/
-
-    //$: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+    $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
 
     function chooseThumb(sentiment: string){
         if(Number (sentiment) > 0){
@@ -107,7 +95,7 @@
                 </tr>
             </TableHead>
             <TableBody>
-                {#each stocks as stock}
+                {#each filteredStocks as stock}
                     <TableBodyRow>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker_symbol}</a></TableBodyCell>
