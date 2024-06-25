@@ -35,18 +35,19 @@
     onMount(async function () {
         const response_price = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
         const params_price = await response_price.json();
-        const response_sentiment = await fetch("http://localhost:3000/api/SentimentDataFor/" + title);
+        const response_sentiment = await fetch("http://localhost:3000/api/historicalSentiments/" + title);
         const data_sentiment = await response_sentiment.json();
         console.log(params_price);
         console.log(data_sentiment);
         prices = params_price;
         sentiments = data_sentiment;
-        for(let i = 0; i < prices.length; i++) {
-            labels_graph.push(prices[i].stock_price_time);
+        for(let i = prices.length-1; i >= 0; i--) {
             prices_graph.push(Number(prices[i].stock_price_val));
         }
-        for(let i = 0; i < sentiments.length; i++){
-            sentiments_graph.push(Math.round(Number(sentiments[i].avg_sentiment)*100)/ 100);
+        for(let i = sentiments.length-1; i >= 0; i--){
+            let sentiment = Math.round(Number(sentiments[i].avg_sentiment)*100)/ 100
+            sentiments_graph.push(sentiment);
+            labels_graph.push(sentiments[i].pub_date.slice(0, 10));
         }
     });
 
@@ -59,6 +60,7 @@
         name: string;
         ticker_symbol: string;
         avg_sentiment: string;
+        pub_date: string;
     }
 
 
@@ -68,23 +70,21 @@
             {
                 label: 'Sentiment',
                 data: sentiments_graph,
-                //data: [0.45, -0.23, 0.76, -0.34, 0.50, 0.12, -0.78, 0.36, -0.45, 0.67, -0.19, 0.85, -0.55, 0.27, -0.10, 0.53, -0.37, 0.60, -0.25, 0.80],
                 yAxisID: 'y',
                 tension: 0.3,
                 borderWidth: 0,
                 fill: {
                     target: 'origin',
-                    above: 'rgba(0, 150, 100, 0.8)',
-                    below: 'rgba(255, 0, 0, 0.8)'
+                    above: 'rgba(0, 150, 100, 0.7)',
+                    below: 'rgba(255, 0, 0, 0.7)'
                 },
                 pointRadius: 1
             },
             {
                 label: 'Price',
-                //data: [150, 145, 155, 142, 148, 151, 140, 147, 144, 153, 149, 157, 141, 150, 148, 152, 143, 154, 146, 158],
                 data: prices_graph,
                 borderColor: 'black',
-                borderWidth: 1,
+                borderWidth: 2,
                 pointRadius: 1,
                 tension:0.3,
                 fill: false,
@@ -114,7 +114,7 @@
     <div class="graph">
         <Line data = {data}
               height = {700}
-              options={{responsive: true, maintainAspectRatio: false}}
+              options={{responsive: true, maintainAspectRatio: false, scales: {xAxes: {display: false},yAxes: {display: false}}}}
         />
     </div>
 </main>
