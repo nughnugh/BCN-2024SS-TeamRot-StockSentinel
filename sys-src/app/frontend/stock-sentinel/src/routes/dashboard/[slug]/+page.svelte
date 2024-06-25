@@ -49,7 +49,7 @@
             <div class = "price"><Price bind:title></Price></div>
             <div class = "sentiment"><Sentiment bind:title></Sentiment></div>
         </div>
-        <Graph></Graph>
+        <Graph bind:title></Graph>
         <Sources bind:title></Sources>
     </div>
 </main>

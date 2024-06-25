@@ -44,6 +44,9 @@ special_search_params = {
     "Forbes": SearchParams(30, False, 20)
 }
 
+FinProcess = FinanceDataProcess()
+FinProcess.push_data_to_db()
+
 news_crawler = NewsProcess(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
                            SearchParams(30, True, 20), special_search_params)
 news_crawler.run()
@@ -51,6 +54,4 @@ news_crawler.run()
 sentimentProcess = SentimentProcess()
 asyncio.run(sentimentProcess.run())
 
-FinProcess = FinanceDataProcess()
-FinProcess.push_data_to_db()
 
