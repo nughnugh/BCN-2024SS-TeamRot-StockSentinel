@@ -32,7 +32,7 @@ def analyze(page: PageData) -> PageData:
         mean(neg_scores),
         mean(neu_scores),
         mean(pos_scores),
-        mean(compound_scores)*1.8
+        (mean(compound_scores)-0.2)*1.5
     ]
     page.sentiment_exists = True
     return page
