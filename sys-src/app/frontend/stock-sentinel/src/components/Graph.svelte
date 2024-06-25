@@ -114,7 +114,7 @@
     <div class="graph">
         <Line data = {data}
               height = {700}
-              options={{responsive: true, maintainAspectRatio: false, scales: {xAxes: {display: false},yAxes: {display: false}}}}
+              options={{responsive: true, maintainAspectRatio: false}}
         />
     </div>
 </main>
