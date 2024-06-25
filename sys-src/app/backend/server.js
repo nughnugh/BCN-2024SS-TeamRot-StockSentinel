@@ -6,7 +6,7 @@ const port =  3000;
 
 const pool = new Pool({
     user: 'st_user',
-    host: 'localhost',
+    host: 'host.docker.internal',
     database: 'postgres',
     password: '123',
     port: 5432,

@@ -1,19 +1,18 @@
 <script lang="ts">
-
      import {onMount} from "svelte";
-
-     let sentiment:number;
 
      export let title:string;
 
      let stocks: Stock[] = [];
 
      onMount(async function () {
-         const response = await fetch("http://localhost:3000/api/sentiments");
+         const response = await fetch("http://localhost:3000/api/SentimentDataFor/" + title);
          const data = await response.json();
          console.log(data);
          stocks = data;
+
      });
+
      interface Stock{
          name: string;
          ticker_symbol: string;
@@ -71,8 +70,8 @@
 
 <main>
     <div class = "stock_info">
-        {#each stocks as stock}
-            {#if stock.name === title }
+        {#each stocks as stock, i}
+            {#if i === 0}
                 <h3>Current Sentiment</h3>
                 <h2 style="color: {setSentimentColor(stock.avg_sentiment)}">{Math.round(Number(stock.avg_sentiment)*100)/ 100}</h2>
                 <p>{setSentimentText(stock.avg_sentiment)}</p>

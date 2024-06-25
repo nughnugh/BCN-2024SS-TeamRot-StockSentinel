@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 class FinanceScraper:
     def __init__(self):
         self.stocks = get_all_stocks()
-        headers = {"User-Agent": UserAgent(platforms='pc').random}
+        headers = {
+            "User-Agent": "Mozilla/5.0",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,/;q=0.8",
+            "Referer": "http://www.google.com/"
+        }
         self.client = requests.Session()
         self.client.headers.update(headers)
 
