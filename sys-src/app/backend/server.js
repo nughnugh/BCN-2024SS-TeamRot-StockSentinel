@@ -131,6 +131,27 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
     }
 });
 
+app.get('/api/historicalSentiments/:stockName',async (req, res) => {
+
+    const query =
+        "SELECT "+
+        " s.name,"+
+        " s.ticker_symbol," +
+        "sn.pub_date, "+
+        " AVG(sn.sentiment) AS AVG_Sentiment "+
+        " FROM "+
+        " stock s, stock_news sn " +
+        " WHERE s.stock_id = sn.stock_id AND s.name = '" + String(req.params.stockName) + "' " +
+        " GROUP BY s.name , s.ticker_symbol, sn.pub_date; "
+
+    try {
+        const result = await pool.query(query);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        res.status(500);
+    }
+});
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
 app.use(cors({origin: 'http://localhost:5173'}))
