@@ -1,7 +1,6 @@
 <script lang="ts">
 
     import {onMount} from "svelte";
-    let date = new Date();
 
     export let title:string;
     let prices: Price[] = [];

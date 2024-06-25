@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { Line } from 'svelte-chartjs';
     import{
         Chart as ChartJS,
@@ -22,6 +22,24 @@
         CategoryScale,
         Filler
     );
+
+    import {onMount} from "svelte";
+
+    export let title:string;
+    let prices: Price[];
+
+    onMount(async function () {
+        const response = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
+        const params = await response.json();
+        console.log(params);
+        prices = params;
+    });
+
+    interface Price{
+        stock_price_val: String[];
+        stock_price_time: String[];
+    }
+
 
     $: data = {
         labels: ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05", "2024-01-06", "2024-01-07", "2024-01-08", "2024-01-09", "2024-01-10", "2024-01-11", "2024-01-12", "2024-01-13", "2024-01-14", "2024-01-15", "2024-01-16", "2024-01-17", "2024-01-18", "2024-01-19", "2024-01-20"],
@@ -71,6 +89,9 @@
 <main>
     <h2>Historical Sentiment and Price</h2>
     <div class="graph">
-        <Line {data} height = {700} options={{responsive: true, maintainAspectRatio: false}} />
+        <Line data = {data}
+              height = {700}
+              options={{responsive: true, maintainAspectRatio: false}}
+        />
     </div>
 </main>
