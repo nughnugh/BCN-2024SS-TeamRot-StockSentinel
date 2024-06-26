@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import asyncio
 from Database import get_unprocessed_news, update_news, cleanup_timeout
 import logging
-from PageCrawler import PageCrawler
+from PageScraper import PageScraper
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class SentimentProcess:
             page_crawlers = []
             for key, pages in news_buckets.items():
                 logger.info(f'Crawl {len(pages)} pages for source_id={key}')
-                page_crawler = PageCrawler(pages=pages, main_url=key)
+                page_crawler = PageScraper(pages=pages, main_url=key)
                 page_crawlers.append(page_crawler)
                 page_crawler.start()
             for page_crawler in page_crawlers:

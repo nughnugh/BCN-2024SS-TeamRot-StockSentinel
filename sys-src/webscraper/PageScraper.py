@@ -61,7 +61,7 @@ def get_meta_info(meta_data) -> (str, str, list[str]):
     return headline, description, keywords
 
 
-class PageCrawler(threading.Thread):
+class PageScraper(threading.Thread):
     def __init__(self, pages: list[PageData], main_url: str):
         super().__init__()
         self.pages = pages
