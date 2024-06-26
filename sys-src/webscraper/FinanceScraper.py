@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 class FinanceScraper:
     def __init__(self):
         self.stocks = get_all_stocks()
-        headers = {"User-Agent": UserAgent(platforms='pc').random}
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,/;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'DNT': '1',  # Do Not Track Request Header
+            'Connection': 'close'
+        }
         self.client = requests.Session()
         self.client.headers.update(headers)
 
@@ -19,7 +25,7 @@ class FinanceScraper:
         price_data = []
         url = f"https://finance.yahoo.com/quote/{stock.ticker_symbol}/history/"
         response = self.client.get(url)
-
+        #print(response.text)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, 'html.parser')
             table = soup.find('tbody')
@@ -40,6 +46,7 @@ class FinanceScraper:
                             min_max = (datetime(6666, 6, 7), datetime(2002, 7, 5))
 
                         if (date < min_max[0]) or (date > min_max[1]):  #nur neue Daten von Interesse
+                            price = price.replace(',','')
                             price = float(price)
                             stock_tuple = (stock.db_id, date, price)
                             price_data.append(stock_tuple)
