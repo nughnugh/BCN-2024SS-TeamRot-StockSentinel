@@ -1,3 +1,7 @@
+const dotenv = require('dotenv');
+
+dotenv.config({path: '../../.env'});
+
 const express = require('express');
 const { Pool } = require('pg');
 const cors = require('cors');
@@ -5,11 +9,11 @@ const app = express();
 const port =  3000;
 
 const pool = new Pool({
-    user: 'st_user',
-    host: 'host.docker.internal',
-    database: 'postgres',
-    password: '123',
-    port: 5432,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    host: process.env.PG_HOST,
+    port: parseInt(process.env.PG_PORT),
+    database: process.env.POSTGRES_DB
 });
 
 app.use(cors());
