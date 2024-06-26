@@ -1,10 +1,12 @@
-<script>
-    import Price from "../../components/Price.svelte";
-    import Sentiment from "../../components/Sentiment.svelte";
-    import Sources from "../../components/Sources.svelte";
-    import Graph from "../../components/Graph.svelte";
+<script lang="ts">
+    import Price from "../../../components/Price.svelte";
+    import Sentiment from "../../../components/Sentiment.svelte";
+    import Sources from "../../../components/Sources.svelte";
+    import Graph from "../../../components/Graph.svelte";
 
-    $: stock = 'placeholder'
+    export let data;
+    let title:string = data.title;
+
 </script>
 
 <style>
@@ -42,13 +44,13 @@
 
 <main>
     <div class = "dashboard">
-        <h2>{stock}</h2>
+        <h2>{data.title}</h2>
         <div class = "info">
-            <div class = "price"><Price></Price></div>
-            <div class = "sentiment"><Sentiment></Sentiment></div>
+            <div class = "price"><Price bind:title></Price></div>
+            <div class = "sentiment"><Sentiment bind:title></Sentiment></div>
         </div>
-        <Graph></Graph>
-        <Sources></Sources>
+        <Graph bind:title></Graph>
+        <Sources bind:title></Sources>
     </div>
 </main>
 

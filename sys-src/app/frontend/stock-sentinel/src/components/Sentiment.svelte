@@ -1,20 +1,38 @@
 <script lang="ts">
-     let sentiment:number = -1;
+     import {onMount} from "svelte";
 
-    function setSentimentColor(sentiment: number){
-        if(sentiment > 0){
+     export let title:string;
+
+     let stocks: Stock[] = [];
+
+     onMount(async function () {
+         const response = await fetch("http://localhost:3000/api/SentimentDataFor/" + title);
+         const data = await response.json();
+         console.log(data);
+         stocks = data;
+
+     });
+
+     interface Stock{
+         name: string;
+         ticker_symbol: string;
+         avg_sentiment: string;
+     }
+
+    function setSentimentColor(sentiment: string){
+        if(Number(sentiment) > 0){
             return 'green';
-        } else if (sentiment < 0){
+        } else if (Number(sentiment)  < 0){
             return 'red';
         } else {
             return 'black';
         }
     }
 
-    function setSentimentText(sentiment:number){
-        if(sentiment > 0){
+    function setSentimentText(sentiment: string){
+        if(Number(sentiment)  > 0){
             return 'Positive';
-        } else if (sentiment < 0){
+        } else if (Number(sentiment)  < 0){
             return 'Negative';
         } else {
             return 'Neutral;'
@@ -52,8 +70,13 @@
 
 <main>
     <div class = "stock_info">
-        <h3>Current Sentiment</h3>
-        <h2 style="color: {setSentimentColor(sentiment)}">{sentiment}</h2>
-        <p>{setSentimentText(sentiment)}</p>
+        {#each stocks as stock, i}
+            {#if i === 0}
+                <h3>Current Sentiment</h3>
+                <h2 style="color: {setSentimentColor(stock.avg_sentiment)}">{Math.round(Number(stock.avg_sentiment)*100)/ 100}</h2>
+                <p>{setSentimentText(stock.avg_sentiment)}</p>
+            {/if}
+        {/each}
+
     </div>
 </main>

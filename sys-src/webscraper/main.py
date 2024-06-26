@@ -39,6 +39,9 @@ logger.info(f"=======================================")
 logger.info(f"Start process: {datetime.now()}")
 logger.info(f"=======================================")
 
+FinProcess = FinanceDataProcess()
+FinProcess.push_data_to_db()
+
 special_search_params = {
     DUMMY_SOURCE_STRING: SearchParams(30, True, 20),
     "Forbes": SearchParams(30, False, 20)
@@ -50,7 +53,4 @@ news_crawler.run()
 
 sentimentProcess = SentimentProcess()
 asyncio.run(sentimentProcess.run())
-
-FinProcess = FinanceDataProcess()
-FinProcess.push_data_to_db()
 

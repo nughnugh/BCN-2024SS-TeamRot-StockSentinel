@@ -11,26 +11,31 @@
         TableSearch,
     } from 'flowbite-svelte';
 
-    let searchTerm = '';
+    import {onMount} from "svelte";
 
-    //example stocks
-    let stocks = [
-        {name: 'Apple', ticker: 'AAPL', sentiment: 1},
-        {name: 'Amazon', ticker: 'AMZN', sentiment: 1},
-        {name: 'Tesla', ticker: 'TSL', sentiment: 0},
-        {name: 'Random Stock', ticker: 'RST',sentiment: -1},
-        {name: 'Microsoft', ticker: 'MIC',sentiment: 1},
-        {name: 'Samsung', ticker: 'SMSG',sentiment: 0},
-        {name: 'Another Stock', ticker: 'AST',sentiment: -1},
-        {name: 'Last Stock', ticker: 'LAST',sentiment: 0}
-    ]
+    let stocks: Stock[] = [];
+
+    onMount(async function () {
+        const response = await fetch("http://localhost:3000/api/sentiments");
+        const data = await response.json();
+        console.log(data);
+        stocks = data;
+    });
+    interface Stock{
+        name: string;
+        ticker_symbol: string;
+        avg_sentiment: string;
+    }
+
+    //export let name;
+    let searchTerm = '';
 
     $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
 
-    function chooseThumb(sentiment: number){
-        if(sentiment > 0){
+    function chooseThumb(sentiment: string){
+        if(Number (sentiment) > 0){
             return thumbsUp;
-        } else if (sentiment < 0){
+        } else if (Number (sentiment) < 0){
             return thumbsDown;
         } else {
             return thumbNeutral;
@@ -91,11 +96,11 @@
             <TableBody>
                 {#each filteredStocks as stock}
                     <TableBodyRow>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.name}</a></TableBodyCell>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard">{stock.ticker}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard/{stock.name}">{stock.name}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dashboard/{stock.name}">{stock.ticker_symbol}</a></TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
-                            {stock.sentiment}
-                            <img src={chooseThumb(stock.sentiment)} alt="thumb based on sentiment"/>
+                            {Math.round(Number(stock.avg_sentiment)*100)/ 100}
+                            <img src={chooseThumb(stock.avg_sentiment)} alt="thumb based on sentiment"/>
                         </TableBodyCell>
                     </TableBodyRow>
                 {/each}

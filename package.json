@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "@sveltejs/adapter-node": "^5.2.0",
     "chart.js": "^4.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "flowbite-svelte": "^0.46.5",
     "svelte-chartjs": "^3.1.5"
   }
 }
