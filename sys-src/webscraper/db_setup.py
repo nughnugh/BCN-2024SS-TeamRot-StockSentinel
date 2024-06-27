@@ -12,7 +12,7 @@ def db_setup():
     insert_stock(Stock('Meta Class A', 'META'))
     insert_stock(Stock('Alphabet Class A', 'GOOGL'))
     insert_stock(Stock('Alphabet Class C', 'GOOG'))
-    insert_stock(Stock('Berkshire Hathaway', 'BRK.B'))
+    insert_stock(Stock('Berkshire Hathaway', 'BRK-A'))
     insert_stock(Stock('Eli Lilly & Co', 'LLY'))
     insert_stock(Stock('Broadcom Inc.', 'AVGO'))
     insert_stock(Stock('Jpmorgan Chase & Co.', 'JPM'))

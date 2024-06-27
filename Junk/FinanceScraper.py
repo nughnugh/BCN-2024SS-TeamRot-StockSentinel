@@ -8,6 +8,7 @@ from Database import get_all_stocks
 
 logger = logging.getLogger(__name__)
 
+#alter FinanceScraper. Wurde von FinScraper ersetzt, hat auf einmal aus unbekannten Gründen nur noch mit VPN in den USA funktioniert
 class FinanceScraper:
     def __init__(self):
         self.stocks = get_all_stocks()
