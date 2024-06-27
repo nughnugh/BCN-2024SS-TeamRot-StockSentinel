@@ -48,8 +48,8 @@ special_search_params = {
 }
 
 news_crawler = NewsProcess(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
-                           SearchParams(30, True, 20), special_search_params)
+                           SearchParams(30, True, 20), special_search_params, pause_time=0.1)
 news_crawler.run()
 
-sentimentProcess = SentimentProcess()
+sentimentProcess = SentimentProcess(0.3, 1)
 asyncio.run(sentimentProcess.run())

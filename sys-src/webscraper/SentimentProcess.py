@@ -14,6 +14,10 @@ class UrlInfo:
 
 
 class SentimentProcess:
+    def __init__(self, sleep_min_time=1, sleep_max_time=2):
+        self.sleep_min_time = sleep_min_time
+        self.sleep_max_time = sleep_max_time
+
     async def run(self):
         url_info = {}
         max_request_per_page = 200
@@ -25,23 +29,23 @@ class SentimentProcess:
                     news_buckets.pop(key, None)
             if len(news_buckets.keys()) == 0:
                 break
-            page_crawlers = []
+            page_scrapers = []
             for key, pages in news_buckets.items():
                 logger.info(f'Crawl {len(pages)} pages for source_id={key}')
-                page_crawler = PageScraper(pages=pages, main_url=key)
-                page_crawlers.append(page_crawler)
-                page_crawler.start()
-            for page_crawler in page_crawlers:
-                page_crawler.join()
-                logger.info(f'Results for {page_crawler.main_url} pages')
-                logger.info(f'Perform Update for {len(page_crawler.pages)} pages')
-                update_news(page_crawler.pages)
-                logger.info(f'Failure cnt: {page_crawler.failure_cnt}')
-                if page_crawler.main_url not in url_info:
-                    url_info[page_crawler.main_url] = UrlInfo()
-                url_info[page_crawler.main_url].request_cnt += len(page_crawler.pages)
-                logger.info(f'Total requests: {url_info[page_crawler.main_url].request_cnt}')
-                if page_crawler.failure_cnt / float(len(page_crawler.pages)) >= 0.8:
-                    url_info[page_crawler.main_url].blacklisted = True
-                    logger.warning(f'Blacklist url: {page_crawler.main_url}')
+                page_scraper = PageScraper(pages, key, self.sleep_min_time, self.sleep_max_time)
+                page_scrapers.append(page_scraper)
+                page_scraper.start()
+            for page_scraper in page_scrapers:
+                page_scraper.join()
+                logger.info(f'Results for {page_scraper.main_url} pages')
+                logger.info(f'Perform Update for {len(page_scraper.pages)} pages')
+                update_news(page_scraper.pages)
+                logger.info(f'Failure cnt: {page_scraper.failure_cnt}')
+                if page_scraper.main_url not in url_info:
+                    url_info[page_scraper.main_url] = UrlInfo()
+                url_info[page_scraper.main_url].request_cnt += len(page_scraper.pages)
+                logger.info(f'Total requests: {url_info[page_scraper.main_url].request_cnt}')
+                if page_scraper.failure_cnt / float(len(page_scraper.pages)) >= 0.8:
+                    url_info[page_scraper.main_url].blacklisted = True
+                    logger.warning(f'Blacklist url: {page_scraper.main_url}')
             cleanup_timeout(3)
