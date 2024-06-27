@@ -18,7 +18,7 @@
     let stocks: Stock[] = [];
 
     onMount(async function () {
-        const response = await fetch('http://localhost:3000/api/ArticlesBySourceFor/' + title);
+        const response = await fetch(__API_ADDRESS__ + "/api/ArticlesBySourceFor/" + title);
         const data = await response.json();
         console.log(data);
         stocks = data;

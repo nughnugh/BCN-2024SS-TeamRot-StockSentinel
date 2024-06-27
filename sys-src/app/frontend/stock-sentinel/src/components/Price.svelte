@@ -6,7 +6,7 @@
     let prices: Price[] = [];
 
     onMount(async function () {
-        const response = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
+        const response = await fetch(__API_ADDRESS__ + "/api/StockDataFor/"+ title);
         const params = await response.json();
         console.log(params);
         prices = params;
