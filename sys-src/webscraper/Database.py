@@ -264,22 +264,22 @@ def cleanup_timeout(max_retries: int):
 
 
 def insert_stock_price(entire_price_data):
+    data_list = []
     cursor = conn.cursor()
     try:
-
         for index, row in entire_price_data.iterrows():
             data_tuple = (row['stock_id'], row['stock_price_time'], row['stock_price_val'])
-
-            try:
-                query = """
-                        INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
-                    """
-                execute_values(cursor, query, [data_tuple])
-                logger.info(f'inserted 1 row in stock_price')
-                conn.commit()
-            except Exception as e:
-                logger.error('unexpected exception: ' + repr(e))
-                conn.rollback()
+            data_list.append(data_tuple)
+        try:
+            query = """
+                    INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
+                """
+            execute_values(cursor, query, data_list)
+            logger.info(f'inserted 1 row in stock_price')
+            conn.commit()
+        except Exception as e:
+            logger.error('unexpected exception: ' + repr(e))
+            conn.rollback()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
         conn.rollback()
