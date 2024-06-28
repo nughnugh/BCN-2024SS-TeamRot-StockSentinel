@@ -1,7 +1,5 @@
 import unittest
 from datetime import datetime
-from unittest.mock import patch, MagicMock
-from statistics import mean
 from PageData import PageData
 import SentAnalyzer
 
