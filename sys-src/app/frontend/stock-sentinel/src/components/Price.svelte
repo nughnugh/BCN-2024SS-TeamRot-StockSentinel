@@ -49,7 +49,7 @@
         <h3>Current Price</h3>
         {#each prices as price, i}
             {#if i === 0}
-                <h2>${price.stock_price_val}</h2>
+                <h2>${Math.round(Number(price.stock_price_val)  * 100) /100}</h2>
             {/if}
         {/each}
         <p>Price at Market Close</p>

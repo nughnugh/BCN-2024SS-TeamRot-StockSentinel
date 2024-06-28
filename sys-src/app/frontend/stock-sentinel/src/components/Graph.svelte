@@ -49,6 +49,8 @@
             sentiments_graph.push(sentiment);
             labels_graph.push(sentiments[i].pub_date.slice(0, 10));
         }
+        prices_graph = prices_graph;
+        sentiments_graph = sentiments_graph;
     });
 
     interface Price{
@@ -114,7 +116,28 @@
     <div class="graph">
         <Line data = {data}
               height = {700}
-              options={{responsive: true, maintainAspectRatio: false}}
+              options={
+                  {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                          xAxis: {
+                              reverse: true,
+                              display: true
+                          },
+                          y: {
+                              min: -1,
+                              max: 1
+                          },
+                          x: {
+                              display: false,
+                              ticks: {
+                                  display: false
+                              }
+                          }
+                      }
+                  }
+              }
         />
     </div>
 </main>
