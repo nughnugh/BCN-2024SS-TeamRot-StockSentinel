@@ -1,7 +1,6 @@
 import binascii
 from urllib.parse import urlparse
 
-from DataImporter.common.Database import Database
 from DataImporter.common.DataModel.PageData import PageData
 from DataImporter.common.DataModel.Source import Source
 from DataImporter.common.DataModel.Stock import Stock
@@ -28,8 +27,6 @@ class SearchTimeAggregate:
 
 
 ddp = dateparser.date.DateDataParser()
-
-DUMMY_SOURCE = Database.get_dummy_source()
 
 
 class GoogleCrawler:
@@ -63,8 +60,7 @@ class GoogleCrawler:
 
     def build_search_url(self):
         search_str = 'search?q='
-        if self.source.name != Database.DUMMY_SOURCE_STRING:
-            search_str += f'site:{self.source.url}'
+        search_str += f'site:{self.source.url}'
         search_str += f'+after:{self.search_time_start}+before:{self.search_time_end}+'
         # short tickers might give wrong results, search with name instead
         if self.search_by_ticker and len(self.stock.ticker_symbol) >= 3:
@@ -101,12 +97,7 @@ class GoogleCrawler:
         url = url.replace('\'', '')
         url = url.split('\\')[0]
 
-        if self.source.name != Database.DUMMY_SOURCE_STRING:
-            source = self.source
-        elif source_url not in self.existing_sources:
-            source = DUMMY_SOURCE
-        else:
-            source = self.existing_sources[source_url]
+        source = self.source
 
         return PageData(source=source, stock=self.stock, url=url, title=title,
                         pub_date=pub_date, source_url=source_url, ticker_related=self.search_by_ticker)

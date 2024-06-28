@@ -128,21 +128,6 @@ def get_all_stocks() -> list[Stock]:
     return stock_list
 
 
-def get_dummy_source():
-    cursor = conn.cursor()
-    source = None
-    try:
-        query = 'SELECT news_source_id, name, url FROM news_source WHERE name = %s'
-        cursor.execute(query, [DUMMY_SOURCE_STRING])
-        data = cursor.fetchone()
-        source = Source(db_id=data[0], name=data[1], url=data[2])
-    except Exception as e:
-        logger.error('unexpected exception: ' + repr(e))
-    finally:
-        cursor.close()
-    return source
-
-
 def get_all_news_sources() -> list[Source]:
     cursor = conn.cursor()
     source_list: list[Source] = []
@@ -161,8 +146,8 @@ def get_all_news_sources() -> list[Source]:
 
 def get_news_time_span(stock: Stock, source: Source, ticker_related: bool) -> (bool, datetime, datetime):
     cursor = conn.cursor()
-    datetime_min: datetime = None
-    datetime_max: datetime = None
+    datetime_min = None
+    datetime_max = None
     try:
         query = """
         SELECT min(pub_date), 
@@ -285,6 +270,7 @@ def insert_stock_price(entire_price_data):
     finally:
         cursor.close()
 
+
 def get_finance_time() -> dict:
     cursor = conn.cursor()
     date_dic = defaultdict(list)
@@ -313,4 +299,3 @@ def get_finance_time() -> dict:
     finally:
         cursor.close()
     return max_date_dic
-

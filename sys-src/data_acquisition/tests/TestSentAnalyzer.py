@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from DataImporter.common import PageData
+from DataImporter.common.DataModel.PageData import PageData
 from DataImporter.ModuleSentiment import SentAnalyzer
 
 
