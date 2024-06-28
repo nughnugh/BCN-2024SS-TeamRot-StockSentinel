@@ -33,9 +33,9 @@
     let sentiments_graph: number[] = [];
 
     onMount(async function () {
-        const response_price = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
+        const response_price = await fetch(__API_ADDRESS__ + "/api/StockDataFor/" + title);
         const params_price = await response_price.json();
-        const response_sentiment = await fetch("http://localhost:3000/api/historicalSentiments/" + title);
+        const response_sentiment = await fetch(__API_ADDRESS__ + "/api/historicalSentiments/" + title);
         const data_sentiment = await response_sentiment.json();
         console.log(params_price);
         console.log(data_sentiment);
