@@ -3,8 +3,8 @@ from datetime import datetime as dt, timedelta
 import calendar
 import io
 import requests
-from Stock import Stock
-from Database import get_all_stocks
+from DataImporter.common.DataModel.Stock import Stock
+from DataImporter.common.Database.Database import get_all_stocks
 
 
 class FinScraper:

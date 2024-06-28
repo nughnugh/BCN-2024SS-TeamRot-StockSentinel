@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import random
@@ -8,10 +7,10 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-from PageData import PageData
-from SentAnalyzer import analyze
+from DataImporter.common.DataModel.PageData import PageData
+from .SentAnalyzer import analyze
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('PageScraper')
 
 
 def parse_rec(json_data):
@@ -38,10 +37,14 @@ def parse_rec(json_data):
 
 def parse_meta_data(meta_data):
     for data in meta_data:
-        json_data = json.loads(data.get_text())
-        json_data = parse_rec(json_data)
-        if json_data:
-            return json_data
+        try:
+            json_data = json.loads(data.get_text())
+            json_data = parse_rec(json_data)
+            if json_data:
+                return json_data
+        except json.decoder.JSONDecodeError as e:
+            logger.warning(e)
+            pass
     return None
 
 

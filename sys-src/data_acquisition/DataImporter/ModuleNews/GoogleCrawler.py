@@ -1,10 +1,10 @@
 import binascii
 from urllib.parse import urlparse
 
-import Database
-from PageData import PageData
-from Source import Source
-from Stock import Stock
+from DataImporter.common.Database import Database
+from DataImporter.common.DataModel.PageData import PageData
+from DataImporter.common.DataModel.Source import Source
+from DataImporter.common.DataModel.Stock import Stock
 from fake_useragent import UserAgent
 import datetime
 import requests
@@ -66,9 +66,11 @@ class GoogleCrawler:
         if self.source.name != Database.DUMMY_SOURCE_STRING:
             search_str += f'site:{self.source.url}'
         search_str += f'+after:{self.search_time_start}+before:{self.search_time_end}+'
-        if self.search_by_ticker:
+        # short tickers might give wrong results, search with name instead
+        if self.search_by_ticker and len(self.stock.ticker_symbol) >= 3:
             search_str += f'intitle:{self.stock.ticker_symbol}'
         else:
+            # replace special characters in name
             search_name = self.stock.name.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`'~-=_+"})
             search_name = search_name.replace(' ', '%20')
             search_str += f'intitle:{search_name}'

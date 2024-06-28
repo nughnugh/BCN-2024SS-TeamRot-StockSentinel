@@ -1,6 +1,6 @@
-from db_setup import db_setup
-import nltk
+print("hello my friends!")
 
+"""
 db_setup()
 nltk.download('vader_lexicon')
 nltk.download('punkt')
@@ -9,14 +9,13 @@ import asyncio
 import logging
 import sys
 from datetime import datetime
-from Database import DUMMY_SOURCE_STRING
-from FinanceDataProcess import FinanceDataProcess
-from MyFormatter import MyFormatter
-from NewsProcess import NewsProcess, QueryMode, SearchParams
+from Database.Database import DUMMY_SOURCE_STRING
+from misc.MyFormatter import MyFormatter
+from ModuleNews.NewsProcess import SearchParams, NewsProcess, QueryMode
 import os
 
-from SentimentProcess import SentimentProcess
-
+from ModuleSentiment.SentimentProcess import SentimentProcess
+from ModuleFinance.FinanceDataProcess import FinanceDataProcess
 
 if not os.path.exists("logs"):
     os.makedirs("logs")
@@ -39,17 +38,20 @@ logger.info(f"=======================================")
 logger.info(f"Start process: {datetime.now()}")
 logger.info(f"=======================================")
 
+
 fin_process = FinanceDataProcess()
 fin_process.start()
+
 
 special_search_params = {
     DUMMY_SOURCE_STRING: SearchParams(30, True, 20),
     "Forbes": SearchParams(30, False, 20)
 }
 
-news_crawler = NewsProcess(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
+news_crawler = NewsProcess(QueryMode.HISTORY, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
                            SearchParams(30, True, 20), special_search_params, pause_time=0.1)
 news_crawler.run()
 
 sentimentProcess = SentimentProcess(0.3, 1)
 asyncio.run(sentimentProcess.run())
+"""

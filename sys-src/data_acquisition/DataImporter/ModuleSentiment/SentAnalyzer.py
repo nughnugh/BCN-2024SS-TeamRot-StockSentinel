@@ -1,8 +1,10 @@
 import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 from statistics import mean
-from PageData import PageData
+from DataImporter.common.DataModel.PageData import PageData
 
+nltk.download('vader_lexicon')
+nltk.download('punkt')
 sia = SentimentIntensityAnalyzer()
 
 def tokenize(page: PageData)-> list[str]:

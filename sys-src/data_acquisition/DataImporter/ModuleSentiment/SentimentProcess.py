@@ -1,10 +1,8 @@
-from datetime import datetime, timedelta
-import asyncio
-from Database import get_unprocessed_news, update_news, cleanup_timeout
+from DataImporter.common.Database.Database import get_unprocessed_news, update_news, cleanup_timeout
 import logging
-from PageScraper import PageScraper
+from .PageScraper import PageScraper
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('SentProcess')
 
 
 class UrlInfo:
@@ -18,9 +16,9 @@ class SentimentProcess:
         self.sleep_min_time = sleep_min_time
         self.sleep_max_time = sleep_max_time
 
-    async def run(self):
+    def run(self):
         url_info = {}
-        max_request_per_page = 200
+        max_request_per_page = 400
         while True:
             news_buckets = get_unprocessed_news(10)
             logger.info(f'Page Crawl for {len(news_buckets.keys())} sources')
@@ -45,7 +43,7 @@ class SentimentProcess:
                     url_info[page_scraper.main_url] = UrlInfo()
                 url_info[page_scraper.main_url].request_cnt += len(page_scraper.pages)
                 logger.info(f'Total requests: {url_info[page_scraper.main_url].request_cnt}')
-                if page_scraper.failure_cnt / float(len(page_scraper.pages)) >= 0.8:
+                if page_scraper.failure_cnt / float(len(page_scraper.pages)) >= 0.8 and len(page_scraper.pages) >= 4:
                     url_info[page_scraper.main_url].blacklisted = True
                     logger.warning(f'Blacklist url: {page_scraper.main_url}')
             cleanup_timeout(3)

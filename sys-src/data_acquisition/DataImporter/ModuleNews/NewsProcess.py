@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from time import sleep
 
-from Database import get_all_stocks, get_all_news_sources, insert_stock_news_batch, remove_existing_news, \
-    get_news_time_span, get_dummy_source
-from GoogleCrawler import GoogleCrawler
+from DataImporter.common.Database.Database import get_all_stocks, get_all_news_sources, insert_stock_news_batch, \
+    remove_existing_news, get_news_time_span
+from .GoogleCrawler import GoogleCrawler
 
 import logging
 

@@ -1,9 +1,8 @@
 import unittest
 from datetime import datetime
-from unittest.mock import patch, MagicMock
-from statistics import mean
-from PageData import PageData
-import SentAnalyzer
+from DataImporter.common import PageData
+from DataImporter.ModuleSentiment import SentAnalyzer
+
 
 class TestSentimentAnalysis(unittest.TestCase):
 

@@ -4,16 +4,15 @@ import os
 from dotenv import load_dotenv
 import logging
 from psycopg2.extras import execute_values
-from PageData import PageData
-from Source import Source
-from Stock import Stock
+from DataImporter.common.DataModel.PageData import PageData
+from DataImporter.common.DataModel.Source import Source
+from DataImporter.common.DataModel.Stock import Stock
 from datetime import datetime
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
 load_dotenv(dotenv_path='../.env')
-load_dotenv(dotenv_path='../postgres.env')
 
 conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         host=os.getenv("PG_HOST"),

@@ -14,12 +14,47 @@ services:
             interval: 5s
             timeout: 5s
             retries: 5
-    webcrawler:
-        build: ./webscraper
+    news_process:
+        build:
+            context: ./data_acquisition
+            dockerfile: News.Dockerfile
         env_file:
         - .env
         depends_on:
             postgres:
                 condition: service_healthy
+    sentiment_process:
+        build:
+            context: ./data_acquisition
+            dockerfile: Sentiment.Dockerfile
+        env_file:
+        - .env
+        depends_on:
+            postgres:
+                condition: service_healthy
+    finance_process:
+        build:
+            context: ./data_acquisition
+            dockerfile: Finance.Dockerfile
+        env_file:
+        - .env
+        depends_on:
+            postgres:
+                condition: service_healthy
+    restarter_news:
+        image: docker:cli
+        volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+        command: ["/bin/sh", "-c", "while true; do sleep 84600; docker restart sys-src-news_process-1; done"]
+        restart: unless-stopped
+    restarter_sentiment:
+        image: docker:cli
+        volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+        command: ["/bin/sh", "-c", "while true; do sleep 3600; docker restart sys-src-sentiment_process-1; done"]
+        restart: unless-stopped
+    restarter_finance:
+        image: docker:cli
+        volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+        command: ["/bin/sh", "-c", "while true; do sleep 84600; docker restart sys-src-finance_process-1; done"]
+        restart: unless-stopped
 volumes:
     pgdata:
