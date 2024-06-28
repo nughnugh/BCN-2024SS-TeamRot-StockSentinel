@@ -7,15 +7,6 @@ import SentAnalyzer
 
 class TestSentimentAnalysis(unittest.TestCase):
 
-    def test_tokenize(self):
-        page = PageData(source='Forbes',stock='Apple',url='oth-aw.de',title='testPage',pub_date=datetime(2002,7,5),source_url='oth-aw.de',ticker_related=True)
-        page.content = 'This is a sentence. Another sentence.\n Tokenize should split this string into tokens.'
-        expected_result = ['This is a sentence.','Another sentence.','Tokenize should split this string into tokens.']
-
-        result = SentAnalyzer.tokenize(page)
-
-        self.assertEqual(result, expected_result)
-
     def test_analyze(self):
         bad_page = PageData(source='Forbes', stock='Apple', url='oth-aw.de', title='testPage',pub_date=datetime(2002, 7, 5), source_url='oth-aw.de', ticker_related=True)
         bad_page.content = 'This is a very negative and bad review. Apple is soon filing bankruptcy. Apple employees are getting fired. Everyting is very bad'
@@ -33,10 +24,19 @@ class TestSentimentAnalysis(unittest.TestCase):
         good_page = SentAnalyzer.analyze(good_page)
 
         self.assertTrue(bad_page.sentiment_exists)
-        self.assertTrue(bad_page.sentiment[3] < -0.3)
+        self.assertTrue(bad_page.sentiment[3] < -0.5)
 
         self.assertTrue(good_page.sentiment_exists)
-        self.assertTrue(good_page.sentiment[3] > 0.3)
+        self.assertTrue(good_page.sentiment[3] > 0.5)
+
+    def test_tokenize(self):
+        page = PageData(source='Forbes',stock='Apple',url='oth-aw.de',title='testPage',pub_date=datetime(2002,7,5),source_url='oth-aw.de',ticker_related=True)
+        page.content = 'This is a sentence. Another sentence. \n. Tokenize should split this string into tokens.'
+        expected_result = ['This is a sentence.','Another sentence.','Tokenize should split this string into tokens.']
+
+        result = SentAnalyzer.tokenize(page)
+
+        self.assertEqual(result, expected_result)
 
 
 if __name__ == '__main__':
