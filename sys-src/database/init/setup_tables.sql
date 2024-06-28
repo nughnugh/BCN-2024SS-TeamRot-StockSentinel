@@ -58,6 +58,9 @@ create table stock_news
     title            TEXT,
     description      TEXT,
     timeout_cnt      integer default 0     not null,
+    locked           boolean default false    not null,
+    content          text,
+    mod_date         timestamp with time zone,
 	primary key(stock_news_id, pub_date)
 );
 

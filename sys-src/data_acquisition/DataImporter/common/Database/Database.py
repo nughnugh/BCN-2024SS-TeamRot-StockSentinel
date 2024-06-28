@@ -173,21 +173,24 @@ def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
     news_buckets: dict[str, list[PageData]] = {}
     try:
         query = f"""
-        SELECT
-          stock_news_id, url, title, timeout_cnt, source_url
-        FROM (
-          SELECT
-            ROW_NUMBER() OVER (
-                PARTITION BY source_url 
-                ORDER BY source_url, timeout_cnt asc, pub_date desc
-            ) AS rownum,
-            t.*
-          FROM
-            stock_news t
-          WHERE not sentiment_exists
-        ) x
-        WHERE
-          x.rownum <= {limit_per_source}
+            UPDATE stock_news
+               SET locked = true,
+                   mod_date = now()
+            WHERE stock_news.stock_news_id in (
+                SELECT stock_news_id
+                  FROM (
+                      SELECT ROW_NUMBER() OVER (
+                          PARTITION BY source_url
+                          ORDER BY source_url, timeout_cnt asc, pub_date desc
+                          ) AS rownum,
+                                   t.*
+                            FROM stock_news t
+                            WHERE not sentiment_exists
+                              AND not locked
+                  ) x
+                  WHERE x.rownum <= 10
+            )
+            RETURNING stock_news_id, url, title, timeout_cnt, source_url
         """
         cursor.execute(query)
         records = cursor.fetchall()
@@ -199,8 +202,10 @@ def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
                 PageData(db_id=record[0], url=record[1], title=record[2], timeout_cnt=record[3],
                          source_url=source_url, source=None, stock=None, pub_date=None,
                          ticker_related=None))
+        conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
     finally:
         cursor.close()
     return news_buckets
@@ -215,14 +220,17 @@ def update_news(news_list: list[PageData]):
             sentiment_exists = t.sentiment_exists,
             sentiment = t.sentiment,
             description = t.description,
-            timeout_cnt = t.timeout_cnt
-        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt, description)
+            timeout_cnt = t.timeout_cnt,
+            content     = t.content,
+            locked = false,
+            mod_date = now()
+        from (values %s) as t(stock_news_id, sentiment_exists, sentiment, timeout_cnt, description, content)
         where s.stock_news_id = t.stock_news_id;
     """
     rows_to_update = []
     for news in news_list:
         rows_to_update.append(
-            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt, news.description)
+            (news.db_id, news.sentiment_exists, news.sentiment[3], news.timeout_cnt, news.description, news.content)
         )
     try:
         execute_values(cursor, query, rows_to_update)
@@ -239,6 +247,48 @@ def cleanup_timeout(max_retries: int):
     try:
         query = 'DELETE FROM stock_news WHERE timeout_cnt >= %s'
         cursor.execute(query, (max_retries,))
+        conn.commit()
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
+    finally:
+        cursor.close()
+
+
+def unlock_stock_news(news_list: list[PageData]):
+    cursor = conn.cursor()
+    query = """
+        update stock_news s
+           set locked = false
+          from (values %s) as t(stock_news_id)
+         where s.stock_news_id = t.stock_news_id;
+    """
+    rows_to_update = []
+    for news in news_list:
+        rows_to_update.append(
+            (news.db_id,)
+        )
+    try:
+        execute_values(cursor, query, rows_to_update)
+        conn.commit()
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+        conn.rollback()
+    finally:
+        cursor.close()
+
+
+def unlock_old_stock_news():
+    cursor = conn.cursor()
+    query = """
+       update stock_news
+          set locked = false
+        where locked
+          and mod_date is not null
+          and EXTRACT(EPOCH FROM now() -  mod_date) > 60;
+    """
+    try:
+        cursor.execute(query)
         conn.commit()
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))

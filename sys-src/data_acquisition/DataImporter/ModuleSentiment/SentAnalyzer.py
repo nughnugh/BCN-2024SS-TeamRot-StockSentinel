@@ -15,7 +15,8 @@ def tokenize(page: PageData)-> list[str]:
     return sentences
 
 def analyze(page: PageData) -> PageData:
-    scores = [sia.polarity_scores(sentence) for sentence in tokenize(page)]
+    sentences = tokenize(page)
+    scores = [sia.polarity_scores(sentence) for sentence in sentences]
 
     for k in range(5):    #headline and description are more important than average sentence
         scores.append(sia.polarity_scores(page.headline))
@@ -37,4 +38,5 @@ def analyze(page: PageData) -> PageData:
         (mean(compound_scores)-0.2)*1.5
     ]
     page.sentiment_exists = True
+    page.content = "\n".join(sentences)
     return page

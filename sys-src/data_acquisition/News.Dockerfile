@@ -22,4 +22,5 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY . .
 
 # Run the application.
+CMD ["python3", "-m", "DataImporter.common.misc.db_setup"]
 CMD ["python3", "-m", "DataImporter.ModuleNews.run"]

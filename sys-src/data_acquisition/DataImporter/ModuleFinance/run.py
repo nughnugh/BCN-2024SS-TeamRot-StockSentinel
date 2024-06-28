@@ -5,3 +5,4 @@ if __name__ == '__main__':
     init_logger('FinanceProcess')
     fin_process = FinanceDataProcess()
     fin_process.run()
+

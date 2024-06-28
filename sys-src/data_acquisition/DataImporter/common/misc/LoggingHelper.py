@@ -19,7 +19,7 @@ def init_logger(module_name, write_file=True):
 
     consoleHandler = logging.StreamHandler(stream=sys.stdout)
     consoleHandler.setFormatter(MyFormatter(True))
-    consoleHandler.setLevel(logging.INFO)
+    consoleHandler.setLevel(logging.DEBUG)
     logger.addHandler(consoleHandler)
 
     logger.setLevel(logging.DEBUG)
