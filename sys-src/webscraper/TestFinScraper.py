@@ -7,8 +7,7 @@ import numpy as np
 class TestFinScraper(unittest.TestCase):
     def setUp(self):
         self.fin_scraper = FinScraper()
-        self.stock1 = Stock('Apple','AAPL',1)
-        self.stock2 = Stock('NVIDIA', 'NVDA',2)
+        self.stock1 = Stock('Apple','AAPL')
         self.end_date = dt.strptime('02-14-2024', '%m-%d-%Y')
 
     def test_get_finance_data(self):
