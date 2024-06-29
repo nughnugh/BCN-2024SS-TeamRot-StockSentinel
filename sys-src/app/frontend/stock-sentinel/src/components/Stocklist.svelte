@@ -19,13 +19,13 @@
         console.log(data);
         stocks = data;
     });
+
     interface Stock{
         name: string;
         ticker_symbol: string;
         avg_sentiment: string;
     }
 
-    //export let name;
     let searchTerm = '';
 
     $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);

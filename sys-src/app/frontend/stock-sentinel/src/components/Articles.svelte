@@ -15,19 +15,20 @@
 
     export let title:string;
 
-    let stocks: Stock[] = [];
+    let articles: Article[] = [];
 
     onMount(async function () {
         const response = await fetch(__API_ADDRESS__ + "/api/ArticlesBySourceFor/" + title);
         const data = await response.json();
         console.log(data);
-        stocks = data;
+        articles = data;
     });
-    interface Stock{
-        ticker_symbol: string;
-        source_url: string;
-        articles: string;
+
+    interface Article {
+        article_name: string;
+        article_url: string;
         sentiment: string;
+        pub_date: string;
     }
 
 </script>
@@ -74,10 +75,10 @@
                 </tr>
             </TableHead>
             <TableBody>
-                {#each stocks as stock, i}
+                {#each articles as stock, i}
                     <TableBodyRow>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dasbhoard/{title}/{stock.source_url}">{stock.source_url}</a></TableBodyCell>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base" style = "text-align: center;">{stock.articles}</TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "https://{stock.article_url}">{stock.article_name}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base">{stock.pub_date.slice(0, 10)}</TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
                             <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
                         </TableBodyCell>
