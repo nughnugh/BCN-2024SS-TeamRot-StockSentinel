@@ -119,7 +119,7 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
             "AVG(sn.sentiment) AS sentiment,"+
             "COUNT(sn.url) AS articles "+
         "FROM "+
-            "stock_news sn, stock s"+
+            "stock_news sn, stock s "+
         "WHERE "+
             "s.name = '" + String(req.params.stockName) + "' "+
             "AND sn.sentiment_exists AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +

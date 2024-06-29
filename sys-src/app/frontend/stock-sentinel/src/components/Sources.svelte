@@ -76,7 +76,7 @@
             <TableBody>
                 {#each stocks as stock, i}
                     <TableBodyRow>
-                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "/dasbhoard/{title}/{stock.source_url}">{stock.source_url}</a></TableBodyCell>
+                        <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "https://{stock.source_url}">{stock.source_url}</a></TableBodyCell>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base" style = "text-align: center;">{stock.articles}</TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
                             <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
