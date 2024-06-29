@@ -43,11 +43,12 @@
         sentiments = data_sentiment;
         for(let i = prices.length-1; i >= 0; i--) {
             prices_graph.push(Number(prices[i].stock_price_val));
+            labels_graph.push(prices[i].stock_price_time.slice(0, 10));
         }
         for(let i = sentiments.length-1; i >= 0; i--){
             let sentiment = Math.round(Number(sentiments[i].avg_sentiment)*100)/ 100
             sentiments_graph.push(sentiment);
-            labels_graph.push(sentiments[i].pub_date.slice(0, 10));
+
         }
         prices_graph = prices_graph;
         sentiments_graph = sentiments_graph;
