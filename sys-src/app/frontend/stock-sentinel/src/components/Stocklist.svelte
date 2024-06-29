@@ -1,7 +1,5 @@
 <script lang="ts">
-    import thumbsUp from '$lib/assets/thumbsUp.png';
-    import thumbsDown from '$lib/assets/thumbsDown.png';
-    import thumbNeutral from '$lib/assets/thumbNeutral.png';
+    import {chooseThumb} from "./helper";
     import {
         TableBody,
         TableBodyCell,
@@ -21,26 +19,18 @@
         console.log(data);
         stocks = data;
     });
+
     interface Stock{
         name: string;
         ticker_symbol: string;
         avg_sentiment: string;
     }
 
-    //export let name;
     let searchTerm = '';
 
     $: filteredStocks = stocks.filter((stock) => stock.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
 
-    function chooseThumb(sentiment: string){
-        if(Number (sentiment) > 0){
-            return thumbsUp;
-        } else if (Number (sentiment) < 0){
-            return thumbsDown;
-        } else {
-            return thumbNeutral;
-        }
-    }
+
 </script>
 
 <style>

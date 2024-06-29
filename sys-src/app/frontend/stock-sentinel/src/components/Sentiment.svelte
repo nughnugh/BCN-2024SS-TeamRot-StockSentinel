@@ -35,7 +35,7 @@
         } else if (Number(sentiment)  < 0){
             return 'Negative';
         } else {
-            return 'Neutral;'
+            return 'Neutral';
         }
     }
 </script>
