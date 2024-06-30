@@ -6,7 +6,7 @@
     let prices: Price[] = [];
 
     onMount(async function () {
-        const response = await fetch(__API_ADDRESS__ + "/api/StockDataFor/"+ title);
+        const response = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
         const params = await response.json();
         console.log(params);
         prices = params;
@@ -49,7 +49,7 @@
         <h3>Current Price</h3>
         {#each prices as price, i}
             {#if i === 0}
-                <h2>${Math.round(Number(price.stock_price_val)  * 100) /100}</h2>
+                <h2>${price.stock_price_val}</h2>
             {/if}
         {/each}
         <p>Price at Market Close</p>

@@ -264,32 +264,24 @@ def cleanup_timeout(max_retries: int):
 
 
 def insert_stock_price(entire_price_data):
-    data_list = []
     cursor = conn.cursor()
-    try:
-        for index, row in entire_price_data.iterrows():
-            data_tuple = (row['stock_id'], row['stock_price_time'], row['stock_price_val'])
-            data_list.append(data_tuple)
+    for list in entire_price_data:
         try:
             query = """
-                    INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
-                """
-            execute_values(cursor, query, data_list)
-            logger.info(f'inserted 1 row in stock_price')
+                INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
+            """
+            execute_values(cursor, query, list)
+            logger.info(f'inserted {len(list)} in stock_price')
             conn.commit()
         except Exception as e:
             logger.error('unexpected exception: ' + repr(e))
             conn.rollback()
-    except Exception as e:
-        logger.error('unexpected exception: ' + repr(e))
-        conn.rollback()
-    finally:
-        cursor.close()
+    cursor.close()
 
 def get_finance_time() -> dict:
     cursor = conn.cursor()
     date_dic = defaultdict(list)
-    max_date_dic = {}
+    min_max_date = {}
     try:
         query = 'SELECT stock_price_time, stock_id FROM stock_price'
         cursor.execute(query)
@@ -301,17 +293,21 @@ def get_finance_time() -> dict:
             date_dic[stock_id].append(date_obj)
 
         for stock_id, date_list in date_dic.items():
+            min_date = min(date_list)
             max_date = max(date_list)
 
+            min_date = min_date[:-14]
             max_date = max_date[:-14]
 
+            min_date = datetime.strptime(min_date, '%Y-%m-%d')
             max_date = datetime.strptime(max_date, '%Y-%m-%d')
 
-            max_date_dic[stock_id] = max_date
+            min_max_date[stock_id] = (min_date, max_date)
 
     except Exception as e:
         logger.error('unexpected exception: ' + repr(e))
     finally:
         cursor.close()
-    return max_date_dic
+    return min_max_date
 
+get_finance_time()

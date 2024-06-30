@@ -18,7 +18,7 @@
     let stocks: Stock[] = [];
 
     onMount(async function () {
-        const response = await fetch(__API_ADDRESS__ + "/api/ArticlesBySourceFor/" + title);
+        const response = await fetch('http://localhost:3000/api/ArticlesBySourceFor/' + title);
         const data = await response.json();
         console.log(data);
         stocks = data;
@@ -56,10 +56,6 @@
         width: auto;
         padding-left: 10px;
     }
-
-    a:hover{
-        text-decoration: underline;
-    }
 </style>
 
 <main>
@@ -79,7 +75,7 @@
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base"><a href = "https://{stock.source_url}">{stock.source_url}</a></TableBodyCell>
                         <TableBodyCell tdClass="px-6 py-4 whitespace-nowrap text-base" style = "text-align: center;">{stock.articles}</TableBodyCell>
                         <TableBodyCell style="display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;">
-                            <img src={chooseThumb(stock.sentiment)} alt = "thumb based on sentiment"/>
+                            <img src={chooseThumb(Number(stock.sentiment))} alt = "thumb based on sentiment"/>
                         </TableBodyCell>
                     </TableBodyRow>
                 {/each}

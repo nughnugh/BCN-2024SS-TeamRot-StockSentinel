@@ -63,15 +63,16 @@ class GoogleCrawler:
 
     def build_search_url(self):
         search_str = 'search?q='
-        if self.source.name != Database.DUMMY_SOURCE_STRING:
-            search_str += f'site:{self.source.url}'
-        search_str += f'+after:{self.search_time_start}+before:{self.search_time_end}+'
         if self.search_by_ticker:
             search_str += f'intitle:{self.stock.ticker_symbol}'
         else:
-            search_name = self.stock.name.translate({ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`'~-=_+"})
-            search_name = search_name.replace(' ', '%20')
-            search_str += f'intitle:{search_name}'
+            search_str += f'intitle:{self.stock.name}'
+
+        if self.source.name != Database.DUMMY_SOURCE_STRING:
+            search_str += f'+site:{self.source.url}'
+
+        search_str += f'+after:{self.search_time_start}+before:{self.search_time_end}'
+
         lan = f'hl={self.language}-{self.country}&gl={self.country}&ceid={self.country}:{self.language}'
         search_url = f'https://news.google.com/rss/{search_str}&{lan}'
         return search_url

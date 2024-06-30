@@ -61,8 +61,8 @@ def get_meta_info(meta_data) -> (str, str, list[str]):
     return headline, description, keywords
 
 
-class PageScraper(threading.Thread):
-    def __init__(self, pages: list[PageData], main_url: str, sleep_min_time: int, sleep_max_time: int):
+class PageCrawler(threading.Thread):
+    def __init__(self, pages: list[PageData], main_url: str):
         super().__init__()
         self.pages = pages
         headers = {
@@ -76,8 +76,6 @@ class PageScraper(threading.Thread):
         self.client.headers.update(headers)
         self.main_url = main_url
         self.failure_cnt = 0
-        self.sleep_min_time = sleep_min_time
-        self.sleep_max_time = sleep_max_time
 
     def process_page(self, page: PageData) -> PageData:
         try:
@@ -103,7 +101,4 @@ class PageScraper(threading.Thread):
         for page in self.pages:
             logger.debug('fetching page: ' + page.url)
             page = self.process_page(page)
-            time.sleep(
-                self.sleep_min_time +
-                random.randrange(1, 10) / 10.0 * (self.sleep_max_time - self.sleep_min_time)
-            )
+            time.sleep(1 + random.randrange(1, 10) / 10.0)

@@ -24,12 +24,11 @@ class SearchParams:
 
 class NewsProcess:
     def __init__(self, query_mode, history_min_date, def_search_params: SearchParams,
-                 source_search_params: dict[str, SearchParams] = None, pause_time=0.5):
+                 source_search_params: dict[str, SearchParams] = None):
         self.query_mode = query_mode
         self.history_min_date = history_min_date
         self.def_search_params = def_search_params
         self.source_search_params = {}
-        self.pause_time = pause_time
         if source_search_params:
             self.source_search_params = source_search_params
 
@@ -87,4 +86,4 @@ class NewsProcess:
                     insert_stock_news_batch(stock_news)
                     logger.info(f"inserted {len(stock_news)} new articles ({prev_cnt} total)")
                     work_max_date = start_date - timedelta(days=1)
-                    sleep(self.pause_time)
+                    sleep(0.5)

@@ -8,7 +8,7 @@ sia = SentimentIntensityAnalyzer()
 def tokenize(page: PageData)-> list[str]:
     sentences = []
     for sentence in nltk.sent_tokenize(page.content):
-        if len(sentence) > 4:   #to prevent new-line "sentences"
+        if sentence.count("\n") == 0:   #to prevent new-line "sentences"
             sentences.append(sentence.strip())
     return sentences
 
