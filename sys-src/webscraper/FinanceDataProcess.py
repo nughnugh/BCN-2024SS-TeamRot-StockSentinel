@@ -1,11 +1,14 @@
+import threading
 from Database import insert_stock_price, get_finance_time
-from FinanceScraper import FinanceScraper
+from FinScraper import FinScraper
 
-class FinanceDataProcess:
+
+class FinanceDataProcess(threading.Thread):
     def __init__(self):
-        self.FinScraper = FinanceScraper()
-        self.date_range = get_finance_time()
-        self.entire_price_data = self.FinScraper.get_all_prices(self.date_range)
+        super().__init__()
+        self.fin_scraper = FinScraper()
 
-    def push_data_to_db(self):
-        insert_stock_price(self.entire_price_data)
+    def run(self):
+        all_dates = get_finance_time()
+        entire_price_data = self.fin_scraper.get_all_data(all_dates)
+        insert_stock_price(entire_price_data)
