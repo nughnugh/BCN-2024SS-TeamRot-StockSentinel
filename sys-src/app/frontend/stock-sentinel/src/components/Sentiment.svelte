@@ -6,7 +6,7 @@
      let stocks: Stock[] = [];
 
      onMount(async function () {
-         const response = await fetch("http://localhost:3000/api/SentimentDataFor/" + title);
+         const response = await fetch(__API_ADDRESS__ + "/api/SentimentDataFor/" + title);
          const data = await response.json();
          console.log(data);
          stocks = data;
@@ -35,7 +35,7 @@
         } else if (Number(sentiment)  < 0){
             return 'Negative';
         } else {
-            return 'Neutral;'
+            return 'Neutral';
         }
     }
 </script>

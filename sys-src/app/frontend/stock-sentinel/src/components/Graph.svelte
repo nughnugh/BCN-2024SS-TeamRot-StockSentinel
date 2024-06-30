@@ -33,9 +33,9 @@
     let sentiments_graph: number[] = [];
 
     onMount(async function () {
-        const response_price = await fetch("http://localhost:3000/api/StockDataFor/"+ title);
+        const response_price = await fetch(__API_ADDRESS__ + "/api/StockDataFor/" + title);
         const params_price = await response_price.json();
-        const response_sentiment = await fetch("http://localhost:3000/api/historicalSentiments/" + title);
+        const response_sentiment = await fetch(__API_ADDRESS__ + "/api/historicalSentiments/" + title);
         const data_sentiment = await response_sentiment.json();
         console.log(params_price);
         console.log(data_sentiment);
@@ -43,12 +43,15 @@
         sentiments = data_sentiment;
         for(let i = prices.length-1; i >= 0; i--) {
             prices_graph.push(Number(prices[i].stock_price_val));
+            labels_graph.push(prices[i].stock_price_time.slice(0, 10));
         }
         for(let i = sentiments.length-1; i >= 0; i--){
             let sentiment = Math.round(Number(sentiments[i].avg_sentiment)*100)/ 100
             sentiments_graph.push(sentiment);
-            labels_graph.push(sentiments[i].pub_date.slice(0, 10));
+
         }
+        prices_graph = prices_graph;
+        sentiments_graph = sentiments_graph;
     });
 
     interface Price{
@@ -114,7 +117,28 @@
     <div class="graph">
         <Line data = {data}
               height = {700}
-              options={{responsive: true, maintainAspectRatio: false}}
+              options={
+                  {
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                          xAxis: {
+                              reverse: true,
+                              display: true
+                          },
+                          y: {
+                              min: -1,
+                              max: 1
+                          },
+                          x: {
+                              display: false,
+                              ticks: {
+                                  display: false
+                              }
+                          }
+                      }
+                  }
+              }
         />
     </div>
 </main>
