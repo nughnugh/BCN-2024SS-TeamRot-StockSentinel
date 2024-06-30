@@ -1,3 +1,7 @@
+<script>
+    import StockSentinel from "$lib/assets/StockSentinel.png";
+</script>
+
 <style>
     header{
         position: sticky;
@@ -36,11 +40,15 @@
         border-radius: 5px;
         padding: 10px;
     }
+
+    img{
+        max-height: 40px;
+    }
 </style>
 
 <header>
     <div class = "title">
-        <h2>Stock Sentinel</h2>
+        <img src ={StockSentinel} alt = "Stock Sentinel Logo"/>
     </div>
     <nav>
         <a href = "/">Overview</a>
