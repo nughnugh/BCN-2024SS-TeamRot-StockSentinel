@@ -110,31 +110,6 @@ app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
     }
 });
 
-// GET like /api/ArticlesBySourceFor/(insert Stock name)
-app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
-    const query =
-        "SELECT "+
-        "s.ticker_symbol, "+
-        "sn.source_url, " +
-        "AVG(sn.sentiment) AS sentiment,"+
-        "COUNT(sn.url) AS articles "+
-        "FROM "+
-        "stock_news sn, stock s "+
-        "WHERE "+
-        "s.name = $1 "+
-        "AND sn.sentiment_exists AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
-        "GROUP BY sn.source_url, s.ticker_symbol; "
-    ;
-
-    try {
-        const result = await pool.query(query, [String(req.params.stockName),]);
-        res.status(200).json(result.rows);
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        res.status(500);
-    }
-});
-
 app.get('/api/historicalSentiments/:stockName',async (req, res) => {
 
     const query =
