@@ -22,13 +22,13 @@ app.get('/api/sentiments',async (req, res) => {
 
     const query =
         "SELECT "+
-            " s.name,"+
-            " s.ticker_symbol,"+
-            " AVG(sn.sentiment) AS AVG_Sentiment "+
-       " FROM "+
-            " stock s, stock_news sn " +
-       " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
-       " GROUP BY s.name , s.ticker_symbol; "
+        " s.name,"+
+        " s.ticker_symbol,"+
+        " AVG(sn.sentiment) AS AVG_Sentiment "+
+        " FROM "+
+        " stock s, stock_news sn " +
+        " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
+        " GROUP BY s.name , s.ticker_symbol; "
 
     try {
         const result = await pool.query(query);
@@ -43,17 +43,17 @@ app.get('/api/sentiments',async (req, res) => {
 app.get('/api/StockDataFor/:stockName', async (req, res) => {
     const query =
         "SELECT "+
-           " sp.stock_price_val, "+
-           " sp.stock_price_time "+
+        " sp.stock_price_val, "+
+        " sp.stock_price_time "+
         " FROM "+
-            "stock s, stock_price sp "+
+        "stock s, stock_price sp "+
         " WHERE "+
-            "s.stock_id = sp.stock_id "+
-        " AND s.name = '" + String(req.params.stockName) + "'"
+        "s.stock_id = sp.stock_id "+
+        " AND s.name = $1"
     ;
 
     try {
-        const result = await pool.query(query);
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
@@ -66,21 +66,21 @@ app.get('/api/StockDataFor/:stockName', async (req, res) => {
 app.get('/api/sentimentSources/:stockName', async (req, res) => {
     const query =
         "SELECT "+
-            " s.ticker_symbol,"+
-            " s.name AS stock_name,"+
-            " sn.title,"+
-            " sn.sentiment,"+
-            " sn.url AS source "+
+        " s.ticker_symbol,"+
+        " s.name AS stock_name,"+
+        " sn.title,"+
+        " sn.sentiment,"+
+        " sn.url AS source "+
         " FROM "+
-            " stock_news sn, stock s "+
+        " stock_news sn, stock s "+
         " WHERE "+
-            " s.name = '" + String(req.params.stockName) + "' "+
-            " AND  sn.stock_id = s.stock_id "+
-            " AND sn.sentiment_exists; "
+        " s.name = $1 "+
+        " AND  sn.stock_id = s.stock_id "+
+        " AND sn.sentiment_exists; "
 
 
     try {
-        const result = await pool.query(query);
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
@@ -92,17 +92,17 @@ app.get('/api/sentimentSources/:stockName', async (req, res) => {
 app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
     const query =
         " SELECT "+
-            " s.name, "+
-            " s.ticker_symbol, "+
-            " AVG(sn.sentiment) AS AVG_Sentiment "+
+        " s.name, "+
+        " s.ticker_symbol, "+
+        " AVG(sn.sentiment) AS AVG_Sentiment "+
         " FROM "+
-            " stock s, stock_news sn "+
-        " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() AND s.name = '" + String(req.params.stockName) + "' "+
+        " stock s, stock_news sn "+
+        " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() AND s.name = $1"+
         " GROUP BY s.ticker_symbol, s.name; "
     ;
 
     try {
-        const result = await pool.query(query);
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
@@ -114,20 +114,20 @@ app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
 app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
     const query =
         "SELECT "+
-            "s.ticker_symbol, "+
-            "sn.source_url, " +
-            "AVG(sn.sentiment) AS sentiment,"+
-            "COUNT(sn.url) AS articles "+
+        "s.ticker_symbol, "+
+        "sn.source_url, " +
+        "AVG(sn.sentiment) AS sentiment,"+
+        "COUNT(sn.url) AS articles "+
         "FROM "+
-            "stock_news sn, stock s "+
+        "stock_news sn, stock s "+
         "WHERE "+
-            "s.name = '" + String(req.params.stockName) + "' "+
-            "AND sn.sentiment_exists AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
-            "GROUP BY sn.source_url, s.ticker_symbol; "
+        "s.name = $1 "+
+        "AND sn.sentiment_exists AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
+        "GROUP BY sn.source_url, s.ticker_symbol; "
     ;
 
     try {
-        const result = await pool.query(query);
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
@@ -145,11 +145,41 @@ app.get('/api/historicalSentiments/:stockName',async (req, res) => {
         " AVG(sn.sentiment) AS AVG_Sentiment "+
         " FROM "+
         " stock s, stock_news sn " +
-        " WHERE s.stock_id = sn.stock_id AND s.name = '" + String(req.params.stockName) + "' " +
+        " WHERE s.stock_id = sn.stock_id AND s.name = $1 " +
         " GROUP BY s.name , s.ticker_symbol, sn.pub_date; "
 
     try {
-        const result = await pool.query(query);
+        const result = await pool.query(query, [String(req.params.stockName),]);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        res.status(500);
+    }
+});
+
+// GET like /api/ArticlesBySourceFor/(insert Stock name)
+app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
+    const query =
+        "SELECT "+
+        " ns.name, "+
+        "ns.url as source_url, "+
+        "AVG(sn.sentiment) AS sentiment, "+
+        "COUNT(sn.url) AS articles "+
+        "FROM "+
+        "stock_news sn, "+
+        "stock s, "+
+        "news_source ns "+
+        "WHERE "+
+        "s.name = $1 AND "+
+        "s.stock_id = sn.stock_id AND "+
+        "ns.news_source_id = sn.news_source_id AND "+
+        "sn.sentiment_exists AND "+
+        "sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() "+
+        "GROUP BY ns.name, ns.url; "
+    ;
+
+    try {
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
