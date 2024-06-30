@@ -3,6 +3,7 @@ import threading
 from DataImporter.common.Database.Database import get_unprocessed_news, update_news, cleanup_timeout, unlock_stock_news
 import logging
 from .PageScraper import PageScraper
+from .SentAnalyzer import analyze, tokenize
 
 logger = logging.getLogger('SentProcess')
 
@@ -40,6 +41,24 @@ class SentimentProcess():
                 page_scraper.start()
             for page_scraper in self.page_scrapers:
                 page_scraper.join()
+
+                common_sentences = {}
+                for page in page_scraper.pages:
+                    if page.success:
+                        page.sentences = tokenize(page.content)
+                        for sentence in page.sentences:
+                            if sentence not in common_sentences:
+                                common_sentences[sentence] = 0
+                            common_sentences[sentence] += 1
+                for page in page_scraper.pages:
+                    if page.success:
+                        filtered_sentences = []
+                        for sentence in page.sentences:
+                            if common_sentences[sentence] <= 1:
+                                filtered_sentences.append(sentence)
+                        page.sentences = filtered_sentences
+                        analyze(page)
+                        page.content = '\n'.join(page.sentences)
                 logger.info(f'Results for {page_scraper.main_url} pages')
                 logger.info(f'Perform Update for {len(page_scraper.pages)} pages')
                 update_news(page_scraper.pages)

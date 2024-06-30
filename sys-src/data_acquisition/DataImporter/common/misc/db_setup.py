@@ -61,7 +61,8 @@ def db_setup():
     insert_news_source(Source('Nasdaq', 'www.nasdaq.com'))
     insert_news_source(Source('Yahoo ModuleFinance', 'finance.yahoo.com'))
     insert_news_source(Source('Investor Place', 'investorplace.com'))
-    # insert_news_source(Source('Seeking Alpha', 'seekingalpha.com'))
+    insert_news_source(Source('The Motley Fool', 'fool.com'))
+    insert_news_source(Source('Investing.com', 'investing.com'))
 
 
 if __name__ == '__main__':

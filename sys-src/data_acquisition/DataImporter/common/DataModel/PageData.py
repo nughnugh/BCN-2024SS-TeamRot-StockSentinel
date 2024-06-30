@@ -29,3 +29,5 @@ class PageData:
         self.headline = None
         self.description = None
         self.keywords = None
+        self.sentences = []
+        self.success = False

@@ -168,7 +168,7 @@ def get_news_time_span(stock: Stock, source: Source, ticker_related: bool) -> (b
     return datetime_min, datetime_max
 
 
-def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
+def get_unprocessed_news(limit_per_source, sentiment_exists=False) -> dict[str, list[PageData]]:
     cursor = conn.cursor()
     news_buckets: dict[str, list[PageData]] = {}
     try:
@@ -185,14 +185,14 @@ def get_unprocessed_news(limit_per_source) -> dict[str, list[PageData]]:
                           ) AS rownum,
                                    t.*
                             FROM stock_news t
-                            WHERE not sentiment_exists
+                            WHERE sentiment_exists = %(sentiment_exists)s
                               AND not locked
                   ) x
-                  WHERE x.rownum <= 10
+                  WHERE x.rownum <= %(limit_per_source)s
             )
             RETURNING stock_news_id, url, title, timeout_cnt, source_url
         """
-        cursor.execute(query)
+        cursor.execute(query, {'limit_per_source': limit_per_source, 'sentiment_exists': sentiment_exists})
         records = cursor.fetchall()
         for record in records:
             source_url = record[4]
@@ -295,6 +295,31 @@ def unlock_old_stock_news():
         conn.rollback()
     finally:
         cursor.close()
+
+
+def get_all_stock_news() -> list[PageData]:
+    cursor = conn.cursor()
+    news_list: list[PageData] = []
+    try:
+        query = f"""
+            SELECT stock_news_id, url, title, timeout_cnt, source_url, content, description
+              FROM STOCK_NEWS
+             WHERE sentiment_exists
+        """
+        cursor.execute(query)
+        records = cursor.fetchall()
+        for record in records:
+            page_data = PageData(db_id=record[0], url=record[1], title=record[2], timeout_cnt=record[3],
+                                 source_url=record[4], source=None, stock=None, pub_date=None,
+                                 ticker_related=None)
+            page_data.content = record[5]
+            page_data.description = record[6]
+            news_list.append(page_data)
+    except Exception as e:
+        logger.error('unexpected exception: ' + repr(e))
+    finally:
+        cursor.close()
+    return news_list
 
 
 def insert_stock_price(entire_price_data):
