@@ -22,7 +22,7 @@ class TestFinScraper(unittest.TestCase):
         self.assertEqual(expected_len, result_len)
         self.assertTrue((expected_max_result == max_result).all())
 
-    def test_get_all_data(self):
+    def test_get_all_data(self):    #test for all
         date = dt.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=2)
         date_dict = {}
         stock_count = 0
