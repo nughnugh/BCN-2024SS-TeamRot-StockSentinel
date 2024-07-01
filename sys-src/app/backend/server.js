@@ -244,7 +244,7 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
             SELECT DATE_TRUNC('day', a.n) as day
               FROM GENERATE_SERIES(
                       $1::timestamp,
-                      $1::timestamp,
+                      $2::timestamp,
                       '1 day'::interval
                   ) as a(n)
             ),
@@ -253,7 +253,7 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
                        AVG(stock_news.sentiment) as sentiment
                   FROM stock,
                        stock_news
-                 WHERE stock.name = $1
+                 WHERE stock.name = $3
                    AND stock_news.stock_id = stock.stock_id
                    AND stock_news.sentiment_exists
                  GROUP BY DATE_TRUNC('day', stock_news.pub_date)
@@ -263,7 +263,7 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
                        AVG(stock_price.stock_price_val) as price
                   FROM stock,
                        stock_price
-                 WHERE stock.name = $1
+                 WHERE stock.name = $3
                    AND stock_price.stock_id = stock.stock_id
                 GROUP BY DATE_TRUNC('day', stock_price.stock_price_time)
             )
