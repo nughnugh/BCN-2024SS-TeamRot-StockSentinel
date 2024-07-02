@@ -219,7 +219,7 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
         `
 
     try {
-        const result = await pool.query(query, [String(req.params.stockName),]);
+        const result = await pool.query(query, [startDate, endDate ,String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
