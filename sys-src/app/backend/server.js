@@ -16,19 +16,20 @@ const pool = new Pool({
     database: process.env.POSTGRES_DB
 });
 
-app.use(cors());
+app.use(cors())
 
 app.get('/api/sentiments',async (req, res) => {
 
-    const query =
-        "SELECT "+
-            " s.name,"+
-            " s.ticker_symbol,"+
-            " AVG(sn.sentiment) AS AVG_Sentiment "+
-        " FROM "+
-            " stock s, stock_news sn " +
-        " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() " +
-            " GROUP BY s.name , s.ticker_symbol; "
+    const query = `
+        SELECT s.name,
+               s.ticker_symbol,
+               AVG(sn.sentiment) AS AVG_Sentiment
+          FROM stock s, 
+               stock_news sn
+         WHERE s.stock_id = sn.stock_id
+           AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now()
+        GROUP BY s.name , s.ticker_symbol;
+    `;
 
     try {
         const result = await pool.query(query);
@@ -41,16 +42,14 @@ app.get('/api/sentiments',async (req, res) => {
 
 // GET like /api/stockData/(insert Stock name)
 app.get('/api/StockDataFor/:stockName', async (req, res) => {
-    const query =
-        "SELECT "+
-            " sp.stock_price_val, "+
-            " sp.stock_price_time "+
-        " FROM "+
-            "stock s, stock_price sp "+
-        " WHERE "+
-            "s.stock_id = sp.stock_id "+
-        " AND s.name = $1"
-    ;
+    const query = `
+        SELECT sp.stock_price_val,
+               sp.stock_price_time
+          FROM stock s, 
+               stock_price sp
+         WHERE s.stock_id = sp.stock_id
+           AND s.name = $1
+    `;
 
     try {
         const result = await pool.query(query, [String(req.params.stockName),]);
@@ -64,20 +63,18 @@ app.get('/api/StockDataFor/:stockName', async (req, res) => {
 
 // GET like /api/sentimentSources/(insert source name)/(insert stock name)
 app.get('/api/sentimentSources/:stockName', async (req, res) => {
-    const query =
-        "SELECT "+
-            " s.ticker_symbol,"+
-            " s.name AS stock_name,"+
-            " sn.title,"+
-            " sn.sentiment,"+
-            " sn.url AS source "+
-        " FROM "+
-            " stock_news sn, stock s "+
-        " WHERE "+
-            " s.name = $1 "+
-            " AND  sn.stock_id = s.stock_id "+
-            " AND sn.sentiment_exists; "
-
+    const query = `
+        SELECT s.ticker_symbol,
+               s.name AS stock_name,
+               sn.title,
+               sn.sentiment,
+               sn.url AS source
+          FROM stock_news sn, 
+               stock s
+         WHERE s.name = $1
+           AND sn.stock_id = s.stock_id
+           AND sn.sentiment_exists;
+    `
 
     try {
         const result = await pool.query(query, [String(req.params.stockName),]);
@@ -90,16 +87,17 @@ app.get('/api/sentimentSources/:stockName', async (req, res) => {
 
 // GET like /api/SentimentDataFor/stockName=(insert Stock name)
 app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
-    const query =
-        " SELECT "+
-            " s.name, "+
-            " s.ticker_symbol, "+
-            " AVG(sn.sentiment) AS AVG_Sentiment "+
-        " FROM "+
-            " stock s, stock_news sn "+
-        " WHERE s.stock_id = sn.stock_id AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() AND s.name = $1"+
-        " GROUP BY s.ticker_symbol, s.name; "
-    ;
+    const query = `
+        SELECT s.name,
+               s.ticker_symbol,
+               AVG(sn.sentiment) AS AVG_Sentiment
+          FROM stock s,
+               stock_news sn
+         WHERE s.stock_id = sn.stock_id
+           AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now()
+           AND s.name = $1
+         GROUP BY s.ticker_symbol, s.name;
+    `;
 
     try {
         const result = await pool.query(query, [String(req.params.stockName),]);
@@ -110,7 +108,7 @@ app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
     }
 });
 
-app.get('/api/historicalSentiments/:stockName',async (req, res) => {
+app.get('/api/historicalData/:stockName',async (req, res) => {
 
     // language=SQL format=false
 const query = `
@@ -158,35 +156,6 @@ const query = `
 });
 
 // GET like /api/ArticlesBySourceFor/(insert Stock name)
-app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
-    const query =
-        "SELECT "+
-            " ns.name, "+
-            "ns.url as source_url, "+
-            "AVG(sn.sentiment) AS sentiment, "+
-            "COUNT(sn.url) AS articles "+
-        "FROM "+
-            "stock_news sn, "+
-            "stock s, "+
-            "news_source ns "+
-        "WHERE "+
-            "s.name = $1 AND "+
-            "s.stock_id = sn.stock_id AND "+
-            "ns.news_source_id = sn.news_source_id AND "+
-            "sn.sentiment_exists AND "+
-            "sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now() "+
-        "GROUP BY ns.name, ns.url; "
-    ;
-
-    try {
-        const result = await pool.query(query, [String(req.params.stockName),]);
-        res.status(200).json(result.rows);
-    } catch (err) {
-        console.error('Error executing query', err.stack);
-        res.status(500);
-    }
-});
-
 app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, res) => {
     let startDate = String(req.params.startDate);
     if(startDate === ""){
@@ -250,7 +219,7 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
         `
 
     try {
-        const result = await pool.query(query, [startDate, endDate ,String(req.params.stockName),]);
+        const result = await pool.query(query, [String(req.params.stockName),]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);
@@ -259,4 +228,4 @@ app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, 
 });
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
-app.use(cors({origin: 'http://localhost:5173'}))
+app.use(cors({origin: 'http://localhost:8080'}))
