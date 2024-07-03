@@ -20,13 +20,13 @@ class FinScraper:
         if not end_date:
             end_date = dt.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-        if start_date == end_date:
-            return pd.DataFrame()
-
         if start_date is None:
             start_date = dt.strptime('01-01-2024', '%m-%d-%Y')
         else:
             start_date = start_date + timedelta(days=1)
+
+        if start_date >= end_date:
+            return pd.DataFrame()
 
         from_date = calendar.timegm(start_date.utctimetuple())
 

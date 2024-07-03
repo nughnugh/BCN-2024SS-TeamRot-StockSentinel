@@ -13,6 +13,7 @@ from collections import defaultdict
 logger = logging.getLogger(__name__)
 
 load_dotenv(dotenv_path='../.env')
+load_dotenv(dotenv_path='../../.env')
 
 conn = psycopg2.connect(database=os.getenv("POSTGRES_DB"),
                         host=os.getenv("PG_HOST"),

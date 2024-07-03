@@ -11,10 +11,9 @@ if __name__ == '__main__':
         "Investor Place": SearchParams(180, False, 60),
         "Nasdaq": SearchParams(180, False, 60),
         "Investing.com": SearchParams(90, False, 60),
-        "The Motley Fool": SearchParams(90, False, 60),
-
+        "The Motley Fool": SearchParams(90, False, 60)
     }
 
-    news_crawler = NewsProcess(QueryMode.HISTORY, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
+    news_crawler = NewsProcess(QueryMode.RECENT, datetime.strptime('01-01-2024', '%m-%d-%Y').date(),
                                SearchParams(30, True, 20), special_search_params, pause_time=0.1)
     news_crawler.run()
