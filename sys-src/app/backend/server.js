@@ -1,14 +1,15 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
+import dateFormat from 'dateformat';
+import pg from 'pg';
+import cors from 'cors';
+import express from 'express';
 
 dotenv.config({path: '../../.env'});
 
-const express = require('express');
-const { Pool } = require('pg');
-const cors = require('cors');
 const app = express();
 const port =  3000;
 
-const pool = new Pool({
+const pool = new pg.Pool({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     host: process.env.PG_HOST,
@@ -28,7 +29,8 @@ app.get('/api/sentiments',async (req, res) => {
                stock_news sn
          WHERE s.stock_id = sn.stock_id
            AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now()
-        GROUP BY s.name , s.ticker_symbol;
+        GROUP BY s.name , s.ticker_symbol
+        ORDER BY AVG_Sentiment DESC;
     `;
 
     try {
@@ -111,7 +113,7 @@ app.get('/api/SentimentDataFor/:stockName', async (req, res) => {
 app.get('/api/historicalData/:stockName',async (req, res) => {
 
     // language=SQL format=false
-const query = `
+    const query = `
         with time_series as (
             SELECT DATE_TRUNC('day', a.n) as day
               FROM GENERATE_SERIES(
@@ -181,71 +183,63 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
         res.status(500);
     }
 });
-Acidennt
-app.get('/api/historicalDataInRange/:stockName/:startDate/:endDate',async (req, res) => {
-    let startDate = String(req.params.startDate);
-    if(startDate === ""){
-        startDate = '2024-01-01'
-    }
 
-    let endDate = String(req.params.endDate);
+app.get('/api/historicalDataInRange',async (req, res) => {
+    let oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() - 1);
 
-    if(startDate === ""){
-        let today = new Date();
-        let dd = String(today.getDate());
+    let startDate = req.query.startDate || '2024-01-01'; //dateFormat(oneYearFromNow, 'yyyy-mm-dd');
+    let endDate = req.query.endDate || dateFormat(Date.now(), 'yyyy-mm-dd');
+    let stockName = String(req.query.stockName);
+    let groupingTime = req.query.groupingTime || 1;
 
-        let mm = String(today.getMonth()+1);
-        let yyyy = String(today.getFullYear());
-        if(dd<10)
-        {
-            dd='0'+dd;
-        }
-
-        if(mm<10)
-        {
-            mm='0'+mm;
-        }
-        startDate = mm+'-'+dd+'-'+yyyy;
-    }
-
-    // language=SQL format=false
     const query = `
         with time_series as (
             SELECT DATE_TRUNC('day', a.n) as day
               FROM GENERATE_SERIES(
-                      $1::timestamp,
-                      $2::timestamp,
+                      $3::timestamp,
+                      $4::timestamp,
                       '1 day'::interval
                   ) as a(n)
-            ),
-            stock_sentiments as (
-                SELECT DATE_TRUNC('day', stock_news.pub_date) as day,
-                       AVG(stock_news.sentiment) as sentiment
-                  FROM stock,
-                       stock_news
-                 WHERE stock.name = $3
-                   AND stock_news.stock_id = stock.stock_id
-                   AND stock_news.sentiment_exists
-                 GROUP BY DATE_TRUNC('day', stock_news.pub_date)
-            ),
-            stock_prices as (
-                SELECT DATE_TRUNC('day', stock_price.stock_price_time) as day,
-                       AVG(stock_price.stock_price_val) as price
-                  FROM stock,
-                       stock_price
-                 WHERE stock.name = $3
-                   AND stock_price.stock_id = stock.stock_id
-                GROUP BY DATE_TRUNC('day', stock_price.stock_price_time)
-            )
-            SELECT time_series.day, stock_sentiments.sentiment, stock_prices.price
-            FROM time_series
-            LEFT JOIN stock_sentiments on time_series.day = stock_sentiments.day
-            LEFT JOIN stock_prices on time_series.day = stock_prices.day
-            ;
-        `
+        ),
+        stock_sentiment_pre as (
+            SELECT (EXTRACT('year' FROM stock_news.pub_date) || '-01-01')::date
+                   + interval '1' day * (FLOOR(EXTRACT('doy' FROM stock_news.pub_date) / $2) * $2 + floor($2 / 2)) as day,
+                   stock_news.sentiment as sentiment
+              FROM stock,
+                   stock_news,
+                   time_series
+             WHERE stock.name = $1
+               AND stock_news.stock_id = stock.stock_id
+               AND stock_news.sentiment_exists
+               AND DATE_TRUNC('day', stock_news.pub_date) = time_series.day
+            order by stock_news.pub_date
+        ),
+        stock_sentiments as (
+            SELECT stock_sentiment_pre.day,
+                   avg(stock_sentiment_pre.sentiment) as sentiment
+              FROM stock_sentiment_pre
+            GROUP BY stock_sentiment_pre.day
+        ),
+        stock_prices as (
+            SELECT DATE_TRUNC('day', stock_price.stock_price_time) as day,
+                   AVG(stock_price.stock_price_val) as price
+              FROM stock,
+                   stock_price,
+                   time_series
+             WHERE stock.name = $1
+               AND stock_price.stock_id = stock.stock_id
+               AND stock_price.stock_price_time = time_series.day
+            GROUP BY stock_price.stock_price_time
+        )
+        SELECT time_series.day, stock_sentiments.sentiment, stock_prices.price
+        FROM time_series
+        LEFT JOIN stock_sentiments on time_series.day = stock_sentiments.day
+        LEFT JOIN stock_prices on time_series.day = stock_prices.day;
+    `;
 
     try {
-        const result = await pool.query(query, [startDate, endDate ,String(req.params.stockName),]);
+        const result = await pool.query(query, [stockName, groupingTime, startDate, endDate]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);

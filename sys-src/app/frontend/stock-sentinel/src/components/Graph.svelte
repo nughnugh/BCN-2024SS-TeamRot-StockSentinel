@@ -11,6 +11,7 @@
         CategoryScale,
         Filler
     } from 'chart.js';
+    import dateFormat from 'dateformat';
 
     ChartJS.register(
         Title,
@@ -29,19 +30,24 @@
     let labels_graph: string[] = [];
     let prices_graph: number[] = [];
     let sentiments_graph: number[] = [];
+    let grouping_value: number = 1;
 
-    onMount(async function () {
-        const response_data = await fetch(__API_ADDRESS__ + "/api/historicalData/" + title);
+    async function loadGraph() {
+        const response_data = await fetch(`${__API_ADDRESS__}/api/historicalDataInRange?stockName=${encodeURIComponent(title)}&groupingTime=${grouping_value}`);
         const historical_data = await response_data.json();
+        sentiments_graph = [];
+        labels_graph = [];
+        prices_graph = [];
         for(let record of historical_data) {
-            labels_graph.push(record.day.slice(0, 10));
+            labels_graph.push(dateFormat(new Date(record.day), 'yyyy-mm-dd'));
             sentiments_graph.push(record.sentiment);
             prices_graph.push(record.price);
-            console.log(record)
         }
         sentiments_graph = sentiments_graph
         prices_graph = prices_graph
-    });
+    }
+
+    onMount(() => loadGraph());
 
     $: data = {
         labels: labels_graph,
@@ -85,10 +91,27 @@
         font-weight: bold;
         font-size: larger;
     }
+
+    input {
+        border: 1px solid gainsboro;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
 </style>
 
 <main>
     <h2>Historical Sentiment and Price</h2>
+    <label for="groupingInput">Sentiment Grouping:</label>
+    <input
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="30"
+            name="groupingInput"
+            bind:value={grouping_value}
+            on:input|preventDefault={loadGraph}
+    />
+
     <div class="graph">
         <Line data = {data}
               height = {700}
@@ -109,6 +132,18 @@
                               display: false,
                               ticks: {
                                   display: false
+                              }
+                          }
+                      },
+                      transitions: {
+                          hide: {
+                              animation: {
+                                  duration: 0,
+                              }
+                          },
+                          show: {
+                              animation: {
+                                  duration: 0
                               }
                           }
                       }
