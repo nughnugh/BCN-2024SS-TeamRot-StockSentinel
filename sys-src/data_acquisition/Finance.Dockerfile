@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.11.0
+ARG PYTHON_VERSION=3.10.0
 FROM python:${PYTHON_VERSION}-slim as base
 
 # Prevents Python from writing pyc files.
@@ -15,16 +15,11 @@ WORKDIR /app
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    --mount=type=bind,source=DataImporter/ModuleFinance/requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
 # Copy the source code into the container.
 COPY . .
 
-RUN [ "python3", "-c", "import nltk; nltk.download('punkt', download_dir='/usr/local/nltk_data'); nltk.download('vader_lexicon', download_dir='/usr/local/nltk_data')" ]
-
-# Expose the port that the application listens on.
-EXPOSE 8000
-
 # Run the application.
-CMD ["python3", "main.py"]
+CMD ["python3", "-m", "DataImporter.ModuleFinance.run"]
