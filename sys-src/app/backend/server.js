@@ -160,8 +160,9 @@ app.get('/api/historicalData/:stockName',async (req, res) => {
 // GET like /api/ArticlesBySourceFor/(insert Stock name)
 app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
     const query = `
-        SELECT ns.name,
-            ns.url as source_url,
+        SELECT
+            ns.url AS source_url,
+            TRUE AS visible,
             AVG(sn.sentiment) AS sentiment,
             COUNT(sn.url) AS articles
         FROM stock_news sn,
@@ -172,7 +173,7 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
             AND ns.news_source_id = sn.news_source_id
             AND sn.sentiment_exists
             AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now()
-        GROUP BY ns.name, ns.url;`
+        GROUP BY ns.url;`
     ;
 
     try {
