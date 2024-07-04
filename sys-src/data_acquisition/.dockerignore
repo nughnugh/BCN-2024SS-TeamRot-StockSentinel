@@ -11,7 +11,7 @@
 **/.dockerignore
 **/.env
 **/.git
-**/.gitignore
+../.venv/.gitignore
 **/.project
 **/.settings
 **/.toolstarget
@@ -24,11 +24,13 @@
 **/charts
 **/docker-compose*
 **/compose.y*ml
-**/Dockerfile*
+**/*Dockerfile*
 **/node_modules
 **/npm-debug.log
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+**/logs
+
 LICENSE
 README.md

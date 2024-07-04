@@ -1,6 +1,7 @@
 from datetime import datetime
-from Source import Source
-from Stock import Stock
+
+from DataImporter.common.DataModel.Source import Source
+from DataImporter.common.DataModel.Stock import Stock
 
 class PageData:
     def __init__(self, source: Source,
@@ -28,3 +29,5 @@ class PageData:
         self.headline = None
         self.description = None
         self.keywords = None
+        self.sentences = []
+        self.success = False

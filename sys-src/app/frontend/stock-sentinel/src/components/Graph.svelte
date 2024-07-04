@@ -11,6 +11,7 @@
         CategoryScale,
         Filler
     } from 'chart.js';
+    import dateFormat from 'dateformat';
 
     ChartJS.register(
         Title,
@@ -26,46 +27,27 @@
     import {onMount} from "svelte";
 
     export let title:string;
-    let prices: Price[];
     let labels_graph: string[] = [];
     let prices_graph: number[] = [];
-    let sentiments: Stock[] = [];
     let sentiments_graph: number[] = [];
+    let grouping_value: number = 1;
 
-    onMount(async function () {
-        const response_price = await fetch(__API_ADDRESS__ + "/api/StockDataFor/" + title);
-        const params_price = await response_price.json();
-        const response_sentiment = await fetch(__API_ADDRESS__ + "/api/historicalSentiments/" + title);
-        const data_sentiment = await response_sentiment.json();
-        console.log(params_price);
-        console.log(data_sentiment);
-        prices = params_price;
-        sentiments = data_sentiment;
-        for(let i = prices.length-1; i >= 0; i--) {
-            prices_graph.push(Number(prices[i].stock_price_val));
-            labels_graph.push(prices[i].stock_price_time.slice(0, 10));
+    async function loadGraph() {
+        const response_data = await fetch(`${__API_ADDRESS__}/api/historicalDataInRange?stockName=${encodeURIComponent(title)}&groupingTime=${grouping_value}`);
+        const historical_data = await response_data.json();
+        sentiments_graph = [];
+        labels_graph = [];
+        prices_graph = [];
+        for(let record of historical_data) {
+            labels_graph.push(dateFormat(new Date(record.day), 'yyyy-mm-dd'));
+            sentiments_graph.push(record.sentiment);
+            prices_graph.push(record.price);
         }
-        for(let i = sentiments.length-1; i >= 0; i--){
-            let sentiment = Math.round(Number(sentiments[i].avg_sentiment)*100)/ 100
-            sentiments_graph.push(sentiment);
-
-        }
-        prices_graph = prices_graph;
-        sentiments_graph = sentiments_graph;
-    });
-
-    interface Price{
-        stock_price_val: string;
-        stock_price_time: string;
+        sentiments_graph = sentiments_graph
+        prices_graph = prices_graph
     }
 
-    interface Stock{
-        name: string;
-        ticker_symbol: string;
-        avg_sentiment: string;
-        pub_date: string;
-    }
-
+    onMount(() => loadGraph());
 
     $: data = {
         labels: labels_graph,
@@ -89,7 +71,6 @@
                 borderColor: 'black',
                 borderWidth: 2,
                 pointRadius: 1,
-                tension:0.3,
                 fill: false,
                 yAxisID: 'y1'
             }
@@ -110,20 +91,37 @@
         font-weight: bold;
         font-size: larger;
     }
+
+    input {
+        border: 1px solid gainsboro;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
 </style>
 
 <main>
     <h2>Historical Sentiment and Price</h2>
+    <label for="groupingInput">Sentiment Grouping:</label>
+    <input
+            type="number"
+            inputmode="numeric"
+            min="1"
+            max="30"
+            name="groupingInput"
+            bind:value={grouping_value}
+            on:input|preventDefault={loadGraph}
+    />
+
     <div class="graph">
         <Line data = {data}
               height = {700}
               options={
                   {
+                      spanGaps: true,
                       responsive: true,
                       maintainAspectRatio: false,
                       scales: {
                           xAxis: {
-                              reverse: true,
                               display: true
                           },
                           y: {
@@ -134,6 +132,18 @@
                               display: false,
                               ticks: {
                                   display: false
+                              }
+                          }
+                      },
+                      transitions: {
+                          hide: {
+                              animation: {
+                                  duration: 0,
+                              }
+                          },
+                          show: {
+                              animation: {
+                                  duration: 0
                               }
                           }
                       }
