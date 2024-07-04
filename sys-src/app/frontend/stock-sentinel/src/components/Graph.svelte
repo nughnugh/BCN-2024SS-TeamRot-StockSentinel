@@ -85,6 +85,7 @@
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 50px;
+        box-shadow: gainsboro 0 0 10px;
     }
 
     h2{
