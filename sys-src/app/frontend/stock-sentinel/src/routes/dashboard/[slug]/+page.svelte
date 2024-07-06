@@ -3,10 +3,11 @@
     import Sentiment from "../../../components/Sentiment.svelte";
     import Sources from "../../../components/Sources.svelte";
     import Graph from "../../../components/Graph.svelte";
+    import {writable, type Writable} from "svelte/store";
 
     export let data;
     let title:string = data.title;
-
+    let excluded_sources:Writable<Set<string>> = writable(new Set<string>());
 </script>
 
 <style>
@@ -49,8 +50,8 @@
             <div class = "price"><Price bind:title></Price></div>
             <div class = "sentiment"><Sentiment bind:title></Sentiment></div>
         </div>
-        <Graph bind:title></Graph>
-        <Sources bind:title></Sources>
+        <Graph bind:title bind:excluded_sources></Graph>
+        <Sources bind:title bind:excluded_sources></Sources>
     </div>
 </main>
 

@@ -165,16 +165,16 @@ app.get('/api/ArticlesBySourceFor/:stockName', async (req, res) => {
             TRUE AS visible,
             AVG(sn.sentiment) AS sentiment,
             COUNT(sn.url) AS articles
-        FROM stock_news sn,
-            stock s,
-            news_source ns
+        FROM news_source ns,
+             stock_news sn,
+             stock s
         WHERE s.name = $1
             AND s.stock_id = sn.stock_id
             AND ns.news_source_id = sn.news_source_id
             AND sn.sentiment_exists
-            AND sn.pub_date BETWEEN now() - INTERVAL '7 days' AND now()
-        GROUP BY ns.url;`
-    ;
+        GROUP BY ns.url
+        ORDER BY articles DESC
+    `;
 
     try {
         const result = await pool.query(query, [String(req.params.stockName),]);
@@ -193,6 +193,14 @@ app.get('/api/historicalDataInRange',async (req, res) => {
     let endDate = req.query.endDate || dateFormat(Date.now(), 'yyyy-mm-dd');
     let stockName = String(req.query.stockName);
     let groupingTime = req.query.groupingTime || 1;
+    let excludedSources = [];
+    if(req.query.excludedSources) {
+        try {
+            excludedSources = JSON.parse(req.query.excludedSources);
+        } catch (err) {
+            console.error('Error parsing excluded sources:', err.stack);
+        }
+    }
 
     const query = `
         with time_series as (
@@ -209,9 +217,12 @@ app.get('/api/historicalDataInRange',async (req, res) => {
                    stock_news.sentiment as sentiment
               FROM stock,
                    stock_news,
+                   news_source,
                    time_series
              WHERE stock.name = $1
                AND stock_news.stock_id = stock.stock_id
+               AND stock_news.news_source_id = news_source.news_source_id
+               AND NOT (news_source.url = ANY($5))
                AND stock_news.sentiment_exists
                AND DATE_TRUNC('day', stock_news.pub_date) = time_series.day
             order by stock_news.pub_date
@@ -240,7 +251,7 @@ app.get('/api/historicalDataInRange',async (req, res) => {
     `;
 
     try {
-        const result = await pool.query(query, [stockName, groupingTime, startDate, endDate]);
+        const result = await pool.query(query, [stockName, groupingTime, startDate, endDate, excludedSources]);
         res.status(200).json(result.rows);
     } catch (err) {
         console.error('Error executing query', err.stack);

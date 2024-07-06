@@ -8,13 +8,15 @@
         TableHead,
         TableHeadCell,
     } from 'flowbite-svelte';
-    import {onMount} from "svelte";
+    import {onMount, setContext} from "svelte";
     import hide from "$lib/assets/hide.png";
     import show from "$lib/assets/show.png";
+    import {writable, type Writable} from "svelte/store";
 
     let sentiment:number;
 
     export let title:string;
+    export let excluded_sources:Writable<Set<string>>;
 
     let sources: Source[] = [];
 
@@ -34,6 +36,17 @@
 
     function toggleVisibility(index: number){
         sources[index].visible = !sources[index].visible;
+        if(!sources[index].visible) {
+            excluded_sources.update(items => {
+                items.add(sources[index].source_url);
+                return items;
+            });
+        } else {
+            excluded_sources.update(items => {
+                items.delete(sources[index].source_url);
+                return items;
+            });
+        }
     }
 </script>
 

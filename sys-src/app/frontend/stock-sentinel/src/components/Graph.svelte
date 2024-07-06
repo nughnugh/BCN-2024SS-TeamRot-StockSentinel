@@ -24,16 +24,29 @@
         Filler
     );
 
-    import {onMount} from "svelte";
+    import {getContext, onMount} from "svelte";
+    import type {Writable} from "svelte/store";
 
     export let title:string;
+    export let excluded_sources: Writable<Set<string>>;
+
     let labels_graph: string[] = [];
     let prices_graph: number[] = [];
     let sentiments_graph: number[] = [];
     let grouping_value: number = 1;
+    let mounted = false;
 
-    async function loadGraph() {
-        const response_data = await fetch(`${__API_ADDRESS__}/api/historicalDataInRange?stockName=${encodeURIComponent(title)}&groupingTime=${grouping_value}`);
+    $: $excluded_sources, (() => {
+        if(mounted) {
+            loadGraph();
+        }
+    })();
+
+    export async function loadGraph() {
+        const address = `${__API_ADDRESS__}/api/historicalDataInRange?stockName=${encodeURIComponent(title)}` +
+            `&groupingTime=${grouping_value}&excludedSources=${JSON.stringify(Array.from($excluded_sources))}`;
+        console.log(address);
+        const response_data = await fetch(address);
         const historical_data = await response_data.json();
         sentiments_graph = [];
         labels_graph = [];
@@ -43,11 +56,13 @@
             sentiments_graph.push(record.sentiment);
             prices_graph.push(record.price);
         }
-        sentiments_graph = sentiments_graph
-        prices_graph = prices_graph
+        sentiments_graph = sentiments_graph;
+        prices_graph = prices_graph;
     }
 
-    onMount(() => loadGraph());
+    onMount(() => {
+        mounted = true;
+    });
 
     $: data = {
         labels: labels_graph,
