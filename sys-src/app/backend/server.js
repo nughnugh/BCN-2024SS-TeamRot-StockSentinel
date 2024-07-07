@@ -260,5 +260,33 @@ app.get('/api/historicalDataInRange',async (req, res) => {
     }
 });
 
+app.get('/api/GetArticlesFromSourceFor/:stockName/:sourceName', async (req, res) => {
+    const query = `
+        SELECT 
+            sn.sentiment AS sentiment,
+            sn.url       AS article_url,
+            sn.title     AS article_name,
+            sn.pub_date
+        FROM news_source ns,
+             stock_news sn,
+             stock s
+        WHERE s.name = $1
+          AND s.stock_id = sn.stock_id
+          AND ns.name = $2
+          AND sn.sentiment_exists
+          AND sn.news_source_id = ns.news_source_id
+        ORDER BY pub_date DESC
+    `;
+
+    try {
+        const result = await pool.query(query, [String(req.params.stockName),String(req.params.sourceName)]);
+        res.status(200).json(result.rows);
+    } catch (err) {
+        console.error('Error executing query', err.stack);
+        res.status(500);
+    }
+})
+
+
 app.listen(port, () => console.log(`Server started on port ${port}`));
 app.use(cors({origin: 'http://localhost:8080'}))
