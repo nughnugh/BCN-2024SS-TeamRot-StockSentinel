@@ -45,17 +45,18 @@ app.get('/api/sentiments',async (req, res) => {
 // GET like /api/stockData/(insert Stock name)
 app.get('/api/StockDataFor/:stockName', async (req, res) => {
     const query = `
-        SELECT sp.stock_price_val,
-               sp.stock_price_time
+        SELECT sp.stock_price_val
           FROM stock s, 
                stock_price sp
          WHERE s.stock_id = sp.stock_id
            AND s.name = $1
+         ORDER BY sp.stock_price_time DESC
+         LIMIT 1
     `;
 
     try {
         const result = await pool.query(query, [String(req.params.stockName),]);
-        res.status(200).json(result.rows);
+        res.status(200).json(result.rows[0]);
     } catch (err) {
         console.error('Error executing query', err.stack);
         res.status(500);

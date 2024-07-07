@@ -19,10 +19,10 @@ def init_logger(module_name, write_file=True):
 
     consoleHandler = logging.StreamHandler(stream=sys.stdout)
     consoleHandler.setFormatter(MyFormatter(True))
-    consoleHandler.setLevel(logging.DEBUG)
+    consoleHandler.setLevel(logging.INFO)
     logger.addHandler(consoleHandler)
 
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     logger.info(f"=======================================")
     logger.info(f"Start process: {datetime.now()}")

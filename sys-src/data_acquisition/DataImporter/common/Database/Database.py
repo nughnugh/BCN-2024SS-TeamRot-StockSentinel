@@ -335,7 +335,7 @@ def insert_stock_price(entire_price_data):
                     INSERT INTO stock_price (stock_id, stock_price_time, stock_price_val) VALUES %s
                 """
             execute_values(cursor, query, data_list)
-            logger.info(f'inserted 1 row in stock_price')
+            logger.info(f'inserted {len(data_list)} rows in stock_price')
             conn.commit()
         except Exception as e:
             logger.error('unexpected exception: ' + repr(e))

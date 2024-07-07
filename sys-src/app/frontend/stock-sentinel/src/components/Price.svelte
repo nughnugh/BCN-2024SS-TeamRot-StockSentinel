@@ -3,18 +3,14 @@
     import {onMount} from "svelte";
 
     export let title:string;
-    let prices: Price[] = [];
+    let price: number
 
     onMount(async function () {
         const response = await fetch(__API_ADDRESS__ + "/api/StockDataFor/"+ title);
-        const params = await response.json();
-        console.log(params);
-        prices = params;
+        const res = await response.json();
+        console.log(res);
+        price = res.stock_price_val;
     });
-    interface Price{
-        stock_price_val: string;
-        stock_price_time: string;
-    }
 </script>
 
 <style>
@@ -47,11 +43,7 @@
 <main>
     <div class = "price_info">
         <h3>Current Price</h3>
-        {#each prices as price, i}
-            {#if i === 0}
-                <h2>${Math.round(Number(price.stock_price_val)  * 100) /100}</h2>
-            {/if}
-        {/each}
+        <h2>${Math.round(Number(price)  * 100) /100}</h2>
         <p>Price at Market Close</p>
     </div>
 </main>

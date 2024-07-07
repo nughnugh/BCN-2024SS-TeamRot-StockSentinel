@@ -88,7 +88,11 @@ class PageScraper(threading.Thread):
                 soup = BeautifulSoup(response.text, 'html.parser')
                 meta_data = soup.find_all('script', {'type': 'application/ld+json'})
                 page.headline, page.description, page.keywords = get_meta_info(meta_data)
-                page.content = soup.get_text()
+                # page.content = soup.get_text()
+
+                text = [p.getText().strip() for p in soup.find_all(['p'])]
+                page.content = "\n".join(text)
+
                 # something probably went wrong, maybe we got blocked, try again later
                 if len(page.content) < 100:
                     logger.error(f"Invalid page content: {page.content} url={page.url}")

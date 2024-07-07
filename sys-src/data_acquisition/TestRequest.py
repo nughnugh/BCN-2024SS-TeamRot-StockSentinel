@@ -5,7 +5,8 @@ from DataImporter.common.misc.LoggingHelper import init_logger
 
 init_logger('test')
 
-def test():
+
+def test_request():
     pageCrawler = PageScraper(None, None, 0.5, 1)
     urls = [
         #"https://investorplace.com/2024/01/aapl-amzn-msft-how-to-play-the-tech-giants-ahead-of-earnings/",
@@ -15,11 +16,12 @@ def test():
         #"https://www.nasdaq.com/articles/apple-aapl-the-critics-have-been-wrong-until-now-and-still-are",
         #"https://seekingalpha.com/article/4698469-apples-golden-moment"
         #"https://www.forbes.com/sites/dereksaul/2024/02/12/nvidia-is-now-more-valuable-than-amazon-and-google/"
-        "https://in.investing.com/news/apple-could-generate-4-billion-in-revenue-from-vision-pro-sales-by-2027--morgan-stanley-432SI-3990232"
+        "https://finance.yahoo.com/news/why-coca-cola-stock-jumped-115315484.html"
     ]
     for url in urls:
         print(url)
-        page = PageData(source=None, stock=None, url=url, title=None, pub_date=None, source_url=None, ticker_related=False)
+        page = PageData(source=None, stock=None, url=url, title=None, pub_date=None, source_url=None,
+                        ticker_related=False)
         pageCrawler.process_page(page)
         print("headline:", page.headline)
         print("description:", page.description)
@@ -27,7 +29,11 @@ def test():
         # analyze(page)
         sentences = tokenize(page.content)
         content = '\n'.join(sentences)
-        print("keywords:", content)
+        print("content:", content)
+        page.sentences = tokenize(page.content)
+        page.title = page.headline
+        page = analyze(page)
         print(page.sentiment[3])
 
-test()
+
+test_request()
