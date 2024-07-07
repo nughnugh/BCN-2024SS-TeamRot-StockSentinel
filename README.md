@@ -11,6 +11,7 @@ git clone https://github.com/nughnugh/BCN-2024SS-TeamRot-StockSentinel.git
 - optional: change parameters such as POSTGRES_PASSWORD in .env
 
 ## Run
+- cd **sys-src**
 - docker compose up
 
 # View
