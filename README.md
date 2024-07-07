@@ -14,16 +14,14 @@ git clone https://github.com/nughnugh/BCN-2024SS-TeamRot-StockSentinel.git
 - cd **sys-src**
 - docker compose up
 
-# View
+## See the application
 This application was deployed using Hetzner. As of right now (July 2024), you can view the page with this link: https://t1p.de/StockSentinel
 
 ## Copyright and Licenses
-Copyright (c) 2024 Ostbayerische Technische Hochschule Amberg-Weiden. All rights reserved.
-
 This software is licensed under the MIT.
 For detailed license information, see the LICENSE file in the project root.
 
-## Used
+## Used Tech
 - SvelteKit
 - express.js
 - nltk VADER sentiment
